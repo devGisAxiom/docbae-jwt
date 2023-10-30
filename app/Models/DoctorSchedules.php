@@ -20,5 +20,10 @@ class DoctorSchedules extends Model
 
     ];
 
+    public function doctor(){
+
+    	return $this->belongsTo(Doctor::class,'doctor_id','id');
+    }
+
     public $timestamps = false;
 }

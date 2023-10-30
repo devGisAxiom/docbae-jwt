@@ -2,8 +2,9 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\DoctorLoginController;
-use App\Http\Controllers\Api\PatientLoginController;
+use App\Http\Controllers\Api\StatusController;
+use App\Http\Controllers\Api\DoctorsController;
+use App\Http\Controllers\Api\PatientsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,16 +22,46 @@ use App\Http\Controllers\Api\PatientLoginController;
 // });
 
 // DOCTOR LOGIN
-Route::post('/checkPhone', [DoctorLoginController::class,'CheckPhone']);
-Route::post('/doctorLogin', [DoctorLoginController::class,'DoctorLogin']);
-Route::post('/doctorRegister', [DoctorLoginController::class,'DoctorRegister']);
-Route::post('/updateDoctorInfo', [DoctorLoginController::class,'UpdateDoctorInfo']);
-Route::post('/viewDoctorsProfile', [DoctorLoginController::class,'ViewDoctorsProfile']);
+Route::post('/checkPhone', [DoctorsController::class,'CheckPhone']);
+Route::post('/doctorLogin', [DoctorsController::class,'DoctorLogin']);
+Route::post('/doctorRegister', [DoctorsController::class,'DoctorRegister']);
+Route::post('/updateDoctorInfo', [DoctorsController::class,'UpdateDoctorInfo']);
+Route::post('/viewDoctorsProfile', [DoctorsController::class,'ViewDoctorsProfile']);
+
+// GET ALL DOCTORS
+Route::post('/getAllDoctors', [DoctorsController::class,'GetAllDoctors']);
+
+// GET ALL DOCTORS
+Route::post('/updateDoctorSchedule', [DoctorsController::class,'UpdateDoctorSchedule']);
+
+// GET DOCTOR SCHEDULES
+Route::post('/getDoctorScheduleDetails', [DoctorsController::class,'GetDoctorScheduleDetails']);
+
+// DELETE DOCTOR SCHEDULES
+Route::post('/deleteDoctorSchedules', [DoctorsController::class,'DeleteDoctorSchedules']);
+
+// SEARCH DOCTOR
+Route::post('/searchDoctor', [DoctorsController::class,'SearchDoctor']);
+
+// NEW INVITATION
+Route::post('/newInvitationRequest', [DoctorsController::class,'NewInvitationRequest']);
+
+// GET ALL PATIENTS INVITATION LIST
+Route::post('/getAllPatientsInvitationList', [DoctorsController::class,'GetAllPatientsInvitationList']);
+
 
 // PATIENT LOGIN
-Route::post('/checkPatientsPhone', [PatientLoginController::class,'CheckPatientsPhone']);
-Route::post('/patientLogin', [PatientLoginController::class,'PatientLogin']);
-Route::post('/patientRegister', [PatientLoginController::class,'PatientRegister']);
-Route::post('/updatePatientInfo', [PatientLoginController::class,'UpdatePatientInfo']);
-Route::post('/viewPatientsProfile', [PatientLoginController::class,'ViewPatientsProfile']);
+Route::post('/checkPatientsPhone', [PatientsController::class,'CheckPatientsPhone']);
+Route::post('/patientLogin', [PatientsController::class,'PatientLogin']);
+Route::post('/patientRegister', [PatientsController::class,'PatientRegister']);
+Route::post('/updatePatientInfo', [PatientsController::class,'UpdatePatientInfo']);
+Route::post('/viewPatientsProfile', [PatientsController::class,'ViewPatientsProfile']);
+
+// STATUS
+Route::post('/getAllStatus', [StatusController::class,'GetAllStatus']);
+
+// UPDATE DOCTOR STATUS
+Route::post('/updateDoctorStatus', [StatusController::class,'UpdateDoctorStatus']);
+
+
 
