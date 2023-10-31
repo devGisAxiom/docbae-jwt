@@ -25,17 +25,17 @@ class StatusController extends Controller
 
     public function UpdateDoctorStatus(Request $request)
     {
-        $id     = $request->input("id");
-        $status = $request->input("status");
+        $doctor_id = $request->input("doctor_id");
+        $status    = $request->input("status");
 
-        $doctor     = Doctor::where('id', $id)->where('is_deleted', '<>', 1)->exists();
+        $doctor     = Doctor::where('id', $doctor_id)->where('is_deleted', '<>', 1)->exists();
         $status_id  = Status::where('id', $status)->where('is_deleted', '<>', 1)->exists();
 
-        if ($id != null && $status != null) {
+        if ($doctor_id != null && $status != null) {
 
             if ($doctor == 1 && $status_id == 1) {
 
-               Doctor::findOrFail($request->id)->update([
+               Doctor::findOrFail($request->doctor_id)->update([
 
                     'status'  => $status,
 

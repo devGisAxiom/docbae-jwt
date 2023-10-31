@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Patient;
+use App\Models\Invitation;
 use Illuminate\Http\Request;
 use App\Models\PatientOtpHistory;
 use App\Http\Controllers\Controller;
@@ -178,6 +179,44 @@ class PatientsController extends Controller
         } else {
 
             return response()->json(['response' => 'failed', 'message' => "please enter id"  ]);
+
+        }
+    }
+
+    public function GetAllPatientsInvitationList(Request $request)
+    {
+        $patient_id     = $request->patient_id;
+
+        if ($patient_id != null) {
+
+            $patient    = Patient::where('id', $patient_id)->where('is_deleted', '<>', 1)->exists();
+
+            if ($patient == 1 ) {
+
+                $patient_invitation = Invitation::where('patient_id', $patient_id)->where('status','<>', 3)->exists();
+
+                if($patient_invitation == 1){
+
+                   $patientInvitation = Invitation::where('patient_id', $patient_id)->where('status','<>', 3)->get();
+
+                   return response()->json(['response' => 'success',  'invitations' => $patientInvitation]);
+
+                } else {
+
+                  return response()->json(['response' => 'failed','message' => 'invitation not found']);
+
+                }
+
+            }else {
+
+                return response()->json(['user_exists' => 'false']);
+
+            }
+
+
+        } else {
+
+            return response()->json(['response' => 'failed']);
 
         }
     }

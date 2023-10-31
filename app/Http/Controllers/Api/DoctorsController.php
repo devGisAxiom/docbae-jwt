@@ -10,6 +10,7 @@ use Illuminate\Support\Carbon;
 use App\Models\DoctorSchedules;
 use App\Models\DoctorOtpHistory;
 use App\Http\Controllers\Controller;
+use App\Models\ReassignedInvitation;
 
 class DoctorsController extends Controller
 {
@@ -65,7 +66,7 @@ class DoctorsController extends Controller
 
                     ]);
 
-                    return response()->json(['User Login' => 'success','user_id' => $user_id]);
+                    return response()->json(['User Login' => 'success', 'user_id' => $user_id]);
                 }
             } else {
 
@@ -240,13 +241,20 @@ class DoctorsController extends Controller
 
     public function UpdateDoctorSchedule(Request $request)
     {
+
+        // $schedulesARR = [[
+        //     'day_of_week' => 2,
+        //     'time_from' => 10,
+        //     'time_to' => 11
+
+        // ]
+        // ];
         $doctor_id    = $request->doctor_id;
         $schedule_id  = $request->schedule_id;
         $doctor       = Doctor::where('id', $doctor_id)->where('is_deleted', '<>', 1)->exists();
 
         if ($doctor == 1) {
 
-            // $doc_schedule = DoctorSchedules::where('doctor_id',$doctor_id)->where('is_deleted', '<>', 1)->exists();
             $schedulesARR = $request->schedules;
 
             if ($schedule_id == null) {
@@ -264,13 +272,14 @@ class DoctorsController extends Controller
                             'time_to'        => $schedules['time_to'],
 
                         ]);
-
-                        return response()->json(['response' => 'success']);
-                    } else {
-
-                        return response()->json(['response' => 'failed']);
                     }
+
+                    // return response()->json(['response' => 'success']);
+                    // } else {
+
+                    //     return response()->json(['response' => 'failed']);
                 }
+                return response()->json(['response' => 'success']);
             } else {
 
                 // update doctor schedule
@@ -394,7 +403,6 @@ class DoctorsController extends Controller
                     if (in_array('0', $time_checkARR)) {
 
                         return response()->json(['response' => 'failed',  'message' => "Doctor Not Available"]);
-
                     } else {
                         $invitation               = new Invitation();
                         $invitation->patient_id   = $patient_id;
@@ -403,9 +411,7 @@ class DoctorsController extends Controller
                         $invitation->save();
 
                         return response()->json(['response' => 'success',  'invitation' => $invitation]);
-
                     }
-
                 } else {
                     return response()->json(['response' => 'failed',  'message' => "No schedules found"]);
                 }
@@ -419,7 +425,7 @@ class DoctorsController extends Controller
         }
     }
 
-    public function GetAllPatientsInvitationList(Request $request)
+    public function GetAllDoctorsInvitationList(Request $request)
     {
         $doctor_id     = $request->doctor_id;
 
@@ -427,23 +433,136 @@ class DoctorsController extends Controller
 
             $doctor    = Doctor::where('id', $doctor_id)->where('is_deleted', '<>', 1)->exists();
 
-            if ($doctor == 1 ) {
+            if ($doctor == 1) {
 
+                $doctor_invitation = Invitation::where('doctor_id', $doctor_id)->where('status', '<>', 3)->exists();
 
+                if ($doctor_invitation == 1) {
 
+                    $doctorInvitation = Invitation::where('doctor_id', $doctor_id)->where('status', '<>', 3)->get();
+
+                    return response()->json(['response' => 'success',  'invitations' => $doctorInvitation]);
+                } else {
+
+                    return response()->json(['response' => 'failed', 'message' => 'invitation not found']);
+                }
             } else {
 
                 return response()->json(['user_exists' => 'false']);
-
             }
-
-
         } else {
 
             return response()->json(['response' => 'failed']);
-
         }
+    }
+
+    public function UpdateDoctorsInvitationStatus(Request $request)
+    {
+
+        $doctor_id     = $request->doctor_id;
+        $patient_id    = $request->patient_id;
+        $invitation_id = $request->invitation_id;
+        $status        = $request->status;
 
 
+        if ($doctor_id != null && $patient_id != null && $invitation_id != null && $status != null) {
+
+            $doctor       = Doctor::where('id', $doctor_id)->where('is_deleted', '<>', 1)->exists();
+            $patient      = Patient::where('id', $patient_id)->where('is_deleted', '<>', 1)->exists();
+
+            if ($doctor == 1 && $patient == 1) {
+
+                $invitation   = Invitation::where('id', $invitation_id)->where('doctor_id', $doctor_id)->where('patient_id', $patient_id)->where('status', '<>', 3)->exists();
+
+                if ($invitation == 1) {
+
+                    Invitation::findOrFail($invitation_id)->update([
+
+                        'status'      => $status,
+                    ]);
+
+                    return response()->json(['response' => 'success']);
+                } else {
+
+                    return response()->json(['response' => 'failed', 'message' => 'invitation not found']);
+                }
+            } else {
+
+                return response()->json(['user_exist' => 'false']);
+            }
+        } else {
+
+            return response()->json(['response' => 'failed']);
+        }
+    }
+
+    public function GetTodaysDoctorInvitationList(Request $request)
+    {
+        $doctor_id  = $request->doctor_id;
+        $date_from  = Carbon::now()->format('Y:m:d');
+        $date_to    = $date_from . " 23:59:59";
+
+        if ($doctor_id != null) {
+
+            $doctor       = Invitation::where('doctor_id', $doctor_id)->where('status', '<>', 3)->exists();
+
+            if ($doctor == 1) {
+
+                $todays_invitations   = Invitation::where('doctor_id', $doctor_id)->whereDate('meeting_time', '>=', $date_from)->whereDate('meeting_time', '<=', $date_to)->where('status', '<>', 3)->get();
+
+                return response()->json(['response' => 'success',  'todays_invitations' => $todays_invitations]);
+            } else {
+
+                return response()->json(['response' => 'failed']);
+            }
+        } else {
+
+            return response()->json(['response' => 'failed']);
+        }
+    }
+
+    public function ReassignInvitation(Request $request)
+    {
+        $doctor_id     = $request->doctor_id;
+        $invitation_id = $request->invitation_id;
+        $reassigned_to = $request->reassigned_to;
+
+        if ($doctor_id != null && $invitation_id != null && $reassigned_to != null) {
+
+            $doctor      = Doctor::where('id', $reassigned_to)->where('is_deleted', '<>', 1)->exists();
+            $invitation  = Invitation::where('id', $invitation_id)->where('doctor_id', $doctor_id)->where('status', '<>', 3)->exists();
+
+            if ($invitation == 1) {
+
+                if($doctor == 1){
+
+                    Invitation::findOrFail($invitation_id)->update([
+
+                        'doctor_id'      => $reassigned_to,
+                    ]);
+
+                    ReassignedInvitation::insert([
+
+                        'doctor_id'      => $doctor_id,
+                        'reassigned_to'  => $reassigned_to,
+                        'invitation_id'  => $invitation_id,
+                        'date_time'      => Carbon::now(),
+
+                    ]);
+                }  else {
+
+                    return response()->json(['user_exist' => 'false']);
+                }
+
+                return response()->json(['response' => 'success', "message" => "Doctor updated successfully"]);
+
+            } else {
+
+                return response()->json(['response' => 'failed', "message" => "Something went wrong"]);
+            }
+        } else {
+
+            return response()->json(['response' => 'failed']);
+        }
     }
 }

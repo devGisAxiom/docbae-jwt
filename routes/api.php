@@ -47,7 +47,19 @@ Route::post('/searchDoctor', [DoctorsController::class,'SearchDoctor']);
 Route::post('/newInvitationRequest', [DoctorsController::class,'NewInvitationRequest']);
 
 // GET ALL PATIENTS INVITATION LIST
-Route::post('/getAllPatientsInvitationList', [DoctorsController::class,'GetAllPatientsInvitationList']);
+Route::post('/getAllDoctorsInvitationList', [DoctorsController::class,'GetAllDoctorsInvitationList']);
+
+// UPDATE DOCTOR INVITATION STATUS
+Route::post('/updateDoctorsInvitationStatus', [DoctorsController::class,'UpdateDoctorsInvitationStatus']);
+
+// GET TODAYS DOCTOR INVITATION LIST
+Route::post('/getTodaysDoctorInvitationList', [DoctorsController::class,'GetTodaysDoctorInvitationList']);
+
+// REASSIGN INVITATIONS
+Route::post('/reassignInvitation', [DoctorsController::class,'ReassignInvitation']);
+
+// GET ALL PATIENTS INVITATION LIST
+Route::post('/getAllPatientsInvitationList', [PatientsController::class,'GetAllPatientsInvitationList']);
 
 
 // PATIENT LOGIN
