@@ -12,11 +12,13 @@ class DoctorSchedules extends Model
 
     protected $fillable = [
         'doctor_id',
+        'available_time',
         'day_of_week',
         'time_from',
         'time_to',
-        'is_active',
-        'is_deleted',
+        'duration',
+        'status',
+        'created_at',
 
     ];
 

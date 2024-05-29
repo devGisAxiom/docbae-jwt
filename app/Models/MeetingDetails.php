@@ -13,8 +13,6 @@ class MeetingDetails extends Model
 
     protected $fillable = [
 
-        'doctor_id',
-        'patient_id',
         'meeting_id',
         'invitation_id',
         'token',
@@ -24,5 +22,10 @@ class MeetingDetails extends Model
     ];
 
     public $timestamps = false;
+
+    public function invitations(){
+
+    	return $this->belongsTo(Invitation::class,'invitation_id','id');
+    }
 
 }

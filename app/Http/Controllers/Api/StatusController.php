@@ -28,8 +28,8 @@ class StatusController extends Controller
         $doctor_id = $request->input("doctor_id");
         $status    = $request->input("status");
 
-        $doctor     = Doctor::where('id', $doctor_id)->where('is_deleted', '<>', 1)->exists();
-        $status_id  = Status::where('id', $status)->where('is_deleted', '<>', 1)->exists();
+        $doctor     = Doctor::where('id', $doctor_id)->where('status',  1)->exists();
+        $status_id  = Status::where('id', $status)->where('status', 1)->exists();
 
         if ($doctor_id != null && $status != null) {
 

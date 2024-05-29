@@ -11,16 +11,7 @@ class Patient extends Model
 
     protected $table = 'patients';
 
-    protected $fillable = [
-
-        'first_name',
-        'last_name',
-        'mobile',
-        'token',
-        'device_type',
-        'is_deleted',
-
-    ];
+    protected $fillable  = ['user_type', 'name', 'mobile','age', 'gender', 'blood_group_id', 'location', 'email','profile_pic', 'no_of_participants', 'authorization_letter','institution_type','institution_sub_type','created_at','status','active' ];
 
     public $timestamps = false;
 }

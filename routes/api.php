@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\StatusController;
 use App\Http\Controllers\Api\DoctorsController;
 use App\Http\Controllers\Api\PatientsController;
+use App\Http\Controllers\Api\InstitutionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,11 +23,27 @@ use App\Http\Controllers\Api\PatientsController;
 // });
 
 // DOCTOR LOGIN
-Route::post('/checkPhone', [DoctorsController::class,'CheckPhone']);
-Route::post('/doctorLogin', [DoctorsController::class,'DoctorLogin']);
+
+Route::get('/checkPhone', [DoctorsController::class,'checkPhoneNumber']);
+Route::post('/userExist', [DoctorsController::class,'UserExist']);
 Route::post('/doctorRegister', [DoctorsController::class,'DoctorRegister']);
-Route::post('/updateDoctorInfo', [DoctorsController::class,'UpdateDoctorInfo']);
-Route::post('/viewDoctorsProfile', [DoctorsController::class,'ViewDoctorsProfile']);
+// Route::post('/updateDoctorInfo', [DoctorsController::class,'UpdateDoctorInfo']);
+Route::post('/viewDoctorProfile', [DoctorsController::class,'ViewDoctorsProfile']);
+Route::post('/departments', [DoctorsController::class,'DepartmentList']);
+Route::post('/updateDoctorProfile', [DoctorsController::class,'UpdateDoctorProfile']);
+Route::post('/doctorDashboard', [DoctorsController::class,'DoctorDashboard']);
+Route::post('/getAvailableSchedule', [DoctorsController::class,'GetAvailableSchedule']);
+
+Route::get('/generatePDF', [DoctorsController::class,'GeneratePDF']);
+
+
+// DEPARTMENT WISE FILTER
+Route::post('/departmentWiseFilter', [DoctorsController::class,'DepartmentWiseFilter']);
+
+
+// GET CONSULTATION FEE
+Route::post('/getConsultationFee', [DoctorsController::class,'GetConsultationFee']);
+
 
 // GET ALL DOCTORS
 Route::post('/getAllDoctors', [DoctorsController::class,'GetAllDoctors']);
@@ -46,8 +63,8 @@ Route::post('/searchDoctor', [DoctorsController::class,'SearchDoctor']);
 // NEW INVITATION
 Route::post('/newInvitationRequest', [DoctorsController::class,'NewInvitationRequest']);
 
-// GET ALL PATIENTS INVITATION LIST
-Route::post('/getAllDoctorsInvitationList', [DoctorsController::class,'GetAllDoctorsInvitationList']);
+// GET APPOINTMENTS
+Route::post('/getAppointmentList', [DoctorsController::class,'GetAppointmentList']);
 
 // UPDATE DOCTOR INVITATION STATUS
 Route::post('/updateDoctorsInvitationStatus', [DoctorsController::class,'UpdateDoctorsInvitationStatus']);
@@ -58,8 +75,35 @@ Route::post('/getTodaysDoctorInvitationList', [DoctorsController::class,'GetToda
 // REASSIGN INVITATIONS
 Route::post('/reassignInvitation', [DoctorsController::class,'ReassignInvitation']);
 
-// GET ALL PATIENTS INVITATION LIST
-Route::post('/getAllPatientsInvitationList', [PatientsController::class,'GetAllPatientsInvitationList']);
+// CREATE MEETING
+Route::post('/createMeeting', [DoctorsController::class,'CreateMeeting']);
+
+// UPDATE MEETING STATUS
+Route::post('/updateMeetingStatus', [DoctorsController::class,'UpdateMeetingStatus']);
+
+// ADD NOTES
+Route::post('/addNotes', [DoctorsController::class,'AddNotes']);
+
+// VIEW NOTES
+Route::post('/viewNotes', [DoctorsController::class,'ViewNotes']);
+
+// ADD PRESCRIPTION
+// Route::post('/addPrescription', [DoctorsController::class,'AddPrescription']);
+
+// VIEW PRESCRIPTION
+// Route::post('/viewPrescription', [DoctorsController::class,'ViewPrescription']);
+
+// PATIENTS FILE UPLOAD
+Route::post('/FileUpload', [DoctorsController::class,'FileUpload']);
+
+Route::post('/viewFiles', [DoctorsController::class,'ViewFiles']);
+
+// MEETING HISTORY
+Route::post('/meetingHistory', [DoctorsController::class,'MeetingHistory']);
+
+// MEETING DETAILS
+Route::post('/invitationDetails', [DoctorsController::class,'InvitationDetails']);
+
 
 
 // PATIENT LOGIN
@@ -68,12 +112,36 @@ Route::post('/patientLogin', [PatientsController::class,'PatientLogin']);
 Route::post('/patientRegister', [PatientsController::class,'PatientRegister']);
 Route::post('/updatePatientInfo', [PatientsController::class,'UpdatePatientInfo']);
 Route::post('/viewPatientsProfile', [PatientsController::class,'ViewPatientsProfile']);
+Route::post('/patientsDashboard', [PatientsController::class,'PatientsDashboard']);
+
+// PATIENT ACTIVE STATUS
+Route::post('/patientStatus', [PatientsController::class,'PatientStatus']);
+
+
+
+// Add family members
+Route::post('/addFamilyMembers', [PatientsController::class,'AddFamilyMembers']);
+Route::post('/listFamilyMembers', [PatientsController::class,'ListFamilyMembers']);
+Route::post('/updateFamilyMembers', [PatientsController::class,'UpdateFamilyMembers']);
+Route::post('/deleteFamilyMember', [PatientsController::class,'DeleteFamilyMember']);
+Route::post('/listDropDowns', [PatientsController::class,'ListDropDowns']);
+
+// MEETING DETAILS
+Route::post('/meetingDetails', [PatientsController::class,'MeetingDetails']);
+
+// student
+Route::post('/listStudents', [InstitutionController::class,'ListStudents']);
+
+// add family members
 
 // STATUS
 Route::post('/getAllStatus', [StatusController::class,'GetAllStatus']);
 
 // UPDATE DOCTOR STATUS
 Route::post('/updateDoctorStatus', [StatusController::class,'UpdateDoctorStatus']);
+
+// INSTITUTION
+Route::post('/institutionProfile', [InstitutionController::class,'InstitutionProfile']);
 
 
 

@@ -17,7 +17,7 @@ class PatientFiles extends Model
         'file_name',
         'file_description',
         'meeting_id',
-        'is_deleted',
+        'status',
 
     ];
 
