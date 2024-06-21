@@ -54,6 +54,8 @@
                                             <td> {{ $item->grade->grade }} </td>
 
                                             <td>
+                                                <a href="{{ route('student.add-health-card', ['id' => $item['id']]) }}">
+                                                    <i class="material-icons">add</i></a> &nbsp;&nbsp;&nbsp;&nbsp;
                                                 <a href="{{ route('student.edit', ['id' => $item['id']]) }}">
                                                     <i class="material-icons">edit</i></a> &nbsp;&nbsp;&nbsp;&nbsp;
                                                 <a href="{{ route('student.delete', $item->id) }}"

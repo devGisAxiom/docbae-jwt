@@ -123,6 +123,11 @@ Route::prefix('institute')->middleware(['admin'])->group(function () {
        Route::post('/update-student/{id}', [StudentManagementController::class, 'UpdateStudent'])->name('student.update');
        Route::get('/delete-student/{id}', [StudentManagementController::class, 'DeleteStudent'])->name('student.delete');
 
+       // Health Card
+       Route::get('/add-health-card', [StudentManagementController::class, 'AddHealthCard'])->name('student.add-health-card');
+       Route::post('/save-health-card/{id}', [StudentManagementController::class, 'SaveHealthCard'])->name('student.save-health-card');
+
+
        Route::get('/invitations', [PatientsController::class, 'Appointments'])->name('institute.appointment.list');
 
         Route::controller(ReportController::class)->group(function () {

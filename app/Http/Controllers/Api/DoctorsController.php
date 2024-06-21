@@ -603,17 +603,28 @@ class DoctorsController extends Controller
 
     public function SearchDoctor(Request $request)
     {
-        // $doctor_id     = $request->input("doctor_id");
-        $search_text   = $request->input("search_text");
+        $search_text      = $request->input("search_text");
+        $department_name  = $request->input("department_name");
 
         if ($search_text) {
 
-            $result = Doctor::where('status', 1)
-                ->where('is_verified', 1)
-                ->where('first_name', 'like', '%' . $search_text . '%')
-                // ->orWhere('last_name', 'like', '%' . $search_text . '%')
-                ->orWhere('mobile', 'like', '%' . $search_text . '%')
-                ->get();
+            if($department_name == null){
+
+                $result = Doctor::where('status', 1)
+                    ->where('is_verified', 1)
+                    ->where('first_name', 'like', '%' . $search_text . '%')
+                    // ->orWhere('last_name', 'like', '%' . $search_text . '%')
+                    ->orWhere('mobile', 'like', '%' . $search_text . '%')
+                    // ->get();
+                    ->paginate(5);
+                } else {
+                    $result = Doctor::where('status', 1)
+                    ->where('is_verified', 1)
+                    ->where('department_name', $department_name)
+                    ->where('first_name', 'like', '%' . $search_text . '%')
+                    ->orWhere('mobile', 'like', '%' . $search_text . '%')
+                    ->paginate(5);
+                }
 
             if (!$result->isEmpty()) {
                 return response()->json(['response' => 'success', 'result' => $result]);

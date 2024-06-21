@@ -14,11 +14,13 @@ class Member extends Model
     protected $fillable = [
 
         'patient_id',
+        'parent_id',
         'user_type',
         'mobile',
         'grade_id',
         'image',
         'name',
+        'dob',
         'age',
         'gender',
         'relationship_id',

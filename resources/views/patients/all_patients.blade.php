@@ -33,6 +33,7 @@
                                 <thead>
                                     <tr>
                                         <th>Sl No</th>
+                                        {{-- <th>Patient Id</th> --}}
                                         <th>Image</th>
                                         <th> Name</th>
                                         <th>Age</th>
@@ -46,6 +47,7 @@
                                     @foreach ($patients as $item)
                                         <tr>
                                             <td>{{ $i++ }} </td>
+                                            {{-- <td>{{ $item->unique_id }} </td> --}}
                                             <td>
                                                 @if ($item->profile_pic == null)
                                                     <img src="{{ asset('assets/images/patients/user.jpg') }}"

@@ -81,8 +81,11 @@
                             <div class="row clearfix">
                                 <div class="col-sm-6">
                                     <div class="form-group">
+                                        <label
+                                            for="Authorization Letter"style="margin-left: 10px; font-size: 12px">Institution
+                                            Type</label>
                                         <select class="form-control show-tick" name="institution_type_id">
-                                            <option>- Institution Type -</option>
+                                            {{-- <option>- Institution Type -</option> --}}
 
                                             @foreach ($institution_types as $item)
                                                 <option value="{{ $item->id }}">{{ $item->name }}</option>
@@ -93,9 +96,11 @@
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="form-group">
-
+                                        <label
+                                            for="Authorization Letter"style="margin-left: 10px; font-size: 12px">Institution
+                                            Sub Type</label>
                                         <select class="form-control show-tick" name="institution_sub_type_id">
-                                            <option value="">- Institution Sub Type -</option>
+                                            {{-- <option value="">- Institution Sub Type -</option> --}}
                                             @foreach ($institution_sub_types as $item)
                                                 <option value="{{ $item->id }}">{{ $item->name }}</option>
                                             @endforeach

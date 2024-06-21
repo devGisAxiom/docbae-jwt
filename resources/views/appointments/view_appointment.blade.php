@@ -143,10 +143,10 @@
                         </div>
                     </div>
 
-                    <div class="body">
+                    {{-- <div class="body">
                         <P style="text-align: center;font-size:15px;font-weight:900">PRESCRIPTION</P>
 
-                    </div>
+                    </div> --}}
 
                 </div>
             </div>

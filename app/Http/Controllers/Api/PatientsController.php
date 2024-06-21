@@ -43,6 +43,7 @@ class PatientsController extends Controller
                 $patient                 = new Patient();
                 $patient->user_type      = 1;
                 $patient->name           = $request->name;
+                $patient->dob            = $request->dob ?? 0;
                 $patient->age            = $request->age ?? 0;
                 $patient->gender         = $request->gender ?? 0;
                 $patient->blood_group_id = $request->blood_group_id;
@@ -69,6 +70,7 @@ class PatientsController extends Controller
                     'user_type'       => 1,
                     'patient_id'      => $patient->id,
                     'name'            => $request->name,
+                    'dob'             => $request->dob ?? 0,
                     'age'             => $request->age ?? 0,
                     'gender'          => $request->gender ?? "",
                     'relationship_id' => 7,

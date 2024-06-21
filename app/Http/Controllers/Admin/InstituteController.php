@@ -33,15 +33,14 @@ class InstituteController extends Controller
 
     public function AddInstitute()
     {
-        $institution_types     = InstitutionType::get();
-        $institution_sub_types = InstitutionSubType::get();
+        $institution_types     = InstitutionType::where('id',1)->get();
+        $institution_sub_types = InstitutionSubType::where('institution_type_id',1)->get();
 
         return view('Institute.add_institute', compact('institution_types','institution_sub_types'));
     }
 
     public function SaveInstitute(Request $request)
     {
-
 
         $validatedData = $request->validate([
 

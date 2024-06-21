@@ -30,9 +30,6 @@
         <div class="row clearfix">
             <div class="col-md-12">
                 <div class="card">
-                    <div class="header">
-                        {{-- <h2><strong>Registration</strong> Information </h2> --}}
-                    </div>
 
                     <form action="{{ route('student.save') }}" method="post" enctype="multipart/form-data">
                         @csrf
@@ -51,7 +48,7 @@
                                         <label
                                             style="margin-left: 10px; font-size: 12px; font-weight:600 ">Mobile</label>
                                         <input type="text" class="form-control" name="mobile" placeholder="Mobile"
-                                            value="{{ old('mobile', '') }}">
+                                            value="{{ old('mobile', '') }}" required>
                                     </div>
                                 </div>
                             </div>
@@ -61,17 +58,20 @@
                                 <div class="col-sm-6">
                                     <div class="form-group">
                                         <label class="label-class"
-                                            style="margin-left: 10px; font-size: 12px; font-weight:600 ">Age</label>
-                                        <input type="text" class="form-control" name="age"
-                                            value="{{ old('age', '') }}" placeholder="Age" required>
+                                            style="margin-left: 10px; font-size: 12px; font-weight:600 ">DOB</label>
+                                        <input type="date" class="form-control" name="dob"
+                                            value="{{ old('dob', '') }}" placeholder="Age" required>
                                     </div>
+
+
                                 </div>
 
                                 <div class="col-sm-6">
                                     <div class="form-group">
                                         <label
                                             style="margin-left: 10px; font-size: 12px; font-weight:600 ">Image</label>
-                                        <input type="file" class="form-control" name="image" placeholder="Image">
+                                        <input type="file" class="form-control datetimepicker" name="image"
+                                            placeholder="Image">
                                     </div>
                                 </div>
 

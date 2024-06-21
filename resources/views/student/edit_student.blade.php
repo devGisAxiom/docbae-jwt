@@ -65,9 +65,9 @@
 
                                 <div class="col-sm-6">
                                     <div class="form-group">
-                                        <label style="margin-left: 10px; font-size: 12px; font-weight:600">Age</label>
-                                        <input type="text" class="form-control" name="age"
-                                            value="{{ $student->age }}" placeholder="Age" required>
+                                        <label style="margin-left: 10px; font-size: 12px; font-weight:600">DOB</label>
+                                        <input type="date" class="form-control" name="dob"
+                                            value="{{ $student->dob }}" placeholder="Age" required>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
