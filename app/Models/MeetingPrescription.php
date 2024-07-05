@@ -13,11 +13,11 @@ class MeetingPrescription extends Model
 
     protected $fillable = [
 
-        'meeting_id',
-        'invitation_id',
-        'title',
-        'priscriptions',
-        'status',
+       'meeting_info_id',
+        'medicine_name',
+        'drug_form',
+        'strength',
+        'duration'
 
     ];
 

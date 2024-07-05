@@ -14,6 +14,8 @@ use App\Models\RegistrationId;
 use Illuminate\Support\Carbon;
 use App\Models\HealthCardDetails;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 
 
@@ -179,20 +181,14 @@ class StudentManagementController extends Controller
     {
         $id           = $request->id;
         $student      = Member::findOrFail($id);
-        // $blood_groups = BloodGroup::get();
-        // $grades       = Grade::get();
 
-        $helath_card_id = HealthCardDetails::where('student_id',$id)->pluck('id')->first();
-        $helath_card    = HealthCardDetails::findOrFail($helath_card_id);
-
-        return view('student.add_health_card', compact('student','helath_card'));
+        return view('student.add_health_card', compact('student'));
     }
 
     public function SaveHealthCard(Request $request)
     {
 
-        $helath_card_id = HealthCardDetails::where('student_id',$request->id)->pluck('id')->first();
-        $helath_card    = HealthCardDetails::findOrFail($helath_card_id);
+        $id = $request->id;
 
         $past_history = $request->past_history;
         $past_historyArr = [];
@@ -264,6 +260,21 @@ class StudentManagementController extends Controller
 
         $helath_card = HealthCardDetails::where('student_id',$request->id)->exists();
 
+        // qrcode
+        $url = "http://15.206.79.66/docbae/public/health-card?id=" . $id;
+        $qrCode = QrCode::size(200)->generate($url);
+
+        $path = 'Images/qr-codes/';
+        $filename = 'qr-code-' . $id . '.svg';
+
+        // Storage::disk('public')->put($path . $filename, $qrCode);
+
+        // $publicUrl = asset('storage/' . $path . $filename);
+
+        $fullPath = public_path($path) . $filename;
+
+
+
         if($helath_card == 0){
 
             HealthCardDetails::insert([
@@ -290,12 +301,14 @@ class StudentManagementController extends Controller
                 'dt_polio_booster_given'   => $dt_polio_booster_given,
                 'present_complaint'        => $request->present_complaint,
                 'current_medication'       => $request->current_medication,
+                'qrcode'                   => $filename,
                 'created_at'               => Carbon::now('asia/kolkata'),
 
             ]);
         }else {
 
             $helath_card_id = HealthCardDetails::where('student_id',$request->id)->pluck('id')->first();
+            $helath_card    = HealthCardDetails::findOrFail($helath_card_id);
 
             HealthCardDetails::findOrFail($helath_card_id)->update([
 
@@ -321,11 +334,12 @@ class StudentManagementController extends Controller
                 'dt_polio_booster_given'   => $dt_polio_booster_given,
                 'present_complaint'        => $request->present_complaint,
                 'current_medication'       => $request->current_medication,
+                'qrcode'                   => $filename,
                 'created_at'               => Carbon::now('asia/kolkata'),
 
             ]);
         }
 
-        return redirect()->back();
+        return redirect()->route('student.list');
     }
 }

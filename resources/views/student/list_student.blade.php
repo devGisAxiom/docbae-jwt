@@ -30,6 +30,7 @@
 
                         </ul>
                     </div>
+
                     <div class="body">
                         <div class="table-responsive">
                             <table class="table table-bordered table-striped table-hover js-basic-example dataTable">
@@ -39,12 +40,25 @@
                                         <th>Image</th>
                                         <th> Name</th>
                                         <th>Grade</th>
+                                        <th style="text-align: center">Health Card</th>
+                                        <th>Orcode</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @php $i = 1;   @endphp
                                     @foreach ($students as $item)
+                                        @php
+                                            $check_id = App\Models\HealthCardDetails::where(
+                                                'student_id',
+                                                $item->id,
+                                            )->exists();
+
+                                            $qrcode = App\Models\HealthCardDetails::where('student_id', $item->id)
+                                                ->pluck('qrcode')
+                                                ->first();
+
+                                        @endphp
                                         <tr>
                                             <td>{{ $i++ }} </td>
                                             <td><img src="{{ asset('Images/Institution/Student/' . $item->image) }}"
@@ -52,6 +66,19 @@
                                                     class="rounded-circle"></td>
                                             <td> {{ $item->name }}</td>
                                             <td> {{ $item->grade->grade }} </td>
+
+
+                                            <td style="text-align: center">
+                                                @if ($check_id == 1)
+                                                    <a href="{{ route('healthcard', ['id' => $item['id']]) }}">
+                                                        <i class="material-icons">visibility</i></a>
+                                                @endif
+
+                                            </td>
+                                            <td>
+                                                <img src={{ asset('http://127.0.0.1:5500/storage/app/public/qr-codes/' . $qrcode) }}
+                                                    style="width: 50px; height:50px">
+                                            </td>
 
                                             <td>
                                                 <a href="{{ route('student.add-health-card', ['id' => $item['id']]) }}">
@@ -62,6 +89,7 @@
                                                     onclick="myDelete(event)"> <i
                                                         class="material-icons">delete_forever</i></a>
                                             </td>
+
                                         </tr>
                                     @endforeach
 

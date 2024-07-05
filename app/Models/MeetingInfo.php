@@ -15,6 +15,13 @@ class MeetingInfo extends Model
 
         'meeting_id',
         'invitation_id',
+        'chief_complaints',
+        'diagnosis',
+        'points_from_history',
+        'lab_findings',
+        'investigations',
+        'instructions',
+        'notes',
         'status',
         'created_at',
 
@@ -22,6 +29,6 @@ class MeetingInfo extends Model
 
     public $timestamps = false;
 
-  
+
 
 }

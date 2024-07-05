@@ -28,6 +28,8 @@ class Invitation extends Model
         'doctors_fee',
         'fund_released',
         'released_date',
+        'emergency_call',
+        'follow_up',
 
     ];
 

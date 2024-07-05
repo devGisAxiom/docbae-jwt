@@ -36,6 +36,7 @@
                                         <th>Consultation Fee</th>
                                         <th>Commission Percentage</th>
                                         <th>Payment Type</th>
+                                        <th>Followup Days</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -54,6 +55,8 @@
                                             <td>{{ $item->consultation_fee }}</td>
                                             <td>{{ $item->commission_percentage }} %</td>
                                             <td>{{ $payment_type }}</td>
+                                            <td>{{ $item->followup_days }}</td>
+
                                             <td>
                                                 <a href="{{ route('settings.edit', ['id' => $item['id']]) }}"> <i
                                                         class="material-icons">edit</i></a>

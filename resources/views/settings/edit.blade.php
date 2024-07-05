@@ -33,6 +33,8 @@
                     <form action="{{ route('settings.update', ['id' => $settings->id]) }}" method="post">
                         @csrf
                         <div class="body">
+                            <p style="font-size: 18px; font-weight:800">General Fee Structure</p>
+
                             <div class="row clearfix">
                                 <div class="col-sm-6">
                                     <div class="form-group">
@@ -66,7 +68,22 @@
 
                                     </div>
                                 </div>
+                                <br>
                             </div>
+
+                            <p style="font-size: 18px; font-weight:800">General Followup Days</p>
+
+                            <div class="row clearfix">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>followup Days</label>
+                                        <input type="number" name="followup_days" class="form-control"
+                                            placeholder="followup days" value="{{ $settings->followup_days }}">
+                                    </div>
+                                </div>
+
+                            </div>
+
 
                             <div class="col-sm-12">
                                 <button type="submit" class="btn btn-primary btn-round">Submit</button>

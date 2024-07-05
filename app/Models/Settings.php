@@ -16,6 +16,7 @@ class Settings extends Model
         'consultation_fee',
         'commission_percentage',
         'payment_type',
+        'followup_days',
 
     ];
 

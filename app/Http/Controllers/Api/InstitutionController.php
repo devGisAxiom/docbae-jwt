@@ -6,6 +6,7 @@ use App\Models\Patient;
 use App\Models\Member;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\HealthCardDetails;
 
 class InstitutionController extends Controller
 {
@@ -32,5 +33,14 @@ class InstitutionController extends Controller
             return response()->json(['response' => 'failed', 'message' => 'please enter the required details']);
 
         }
+    }
+
+    public function GetHealthCardWithQrcode(Request $request)
+    {
+        $user_id     = $request->user_id;
+        $phone       = $request->phone;
+        $check_phone = Member::where('user_type',2)->where('mobile',$phone)->exists();
+
+
     }
 }

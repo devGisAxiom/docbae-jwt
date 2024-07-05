@@ -12,6 +12,14 @@
     }
 </style>
 
+@php
+    $helath_card_id = App\Models\HealthCardDetails::where('student_id', Request()->id)
+        ->pluck('id')
+        ->first();
+    if ($helath_card_id != null) {
+        $helath_card = App\Models\HealthCardDetails::findOrFail($helath_card_id);
+    }
+@endphp
 
 <link href="../assets/plugins/bootstrap-material-datetimepicker/css/bootstrap-material-datetimepicker.css"
     rel="stylesheet" />
@@ -145,7 +153,8 @@
                                             for="fathers_name"style="margin-left: 10px; font-size: 12px; font-weight:600">Father's
                                             Name</label>
                                         <input type="text" class="form-control" name="fathers_name"
-                                            placeholder="Father's Name" value="{{ $helath_card->fathers_name }}"
+                                            placeholder="Father's Name"
+                                            @if ($helath_card_id != null) value="{{ $helath_card->fathers_name }}" @endif
                                             required>
                                     </div>
                                 </div>
@@ -156,7 +165,8 @@
                                         </label>
                                         <input type="text" class="form-control" name="fathers_occupation"
                                             placeholder="Father's Occupation"
-                                            value="{{ $helath_card->fathers_occupation }}" required>
+                                            @if ($helath_card_id != null) value="{{ $helath_card->fathers_occupation }}" @endif
+                                            required>
                                     </div>
                                 </div>
                             </div>
@@ -167,7 +177,8 @@
                                         <label style="margin-left: 10px; font-size: 12px; font-weight:600">Mother's
                                             Name</label>
                                         <input type="text" class="form-control" name="mothers_name"
-                                            placeholder="Mothers's Name" value="{{ $helath_card->mothers_name }}"
+                                            placeholder="Mothers's Name"
+                                            @if ($helath_card_id != null) value="{{ $helath_card->mothers_name }}" @endif
                                             required>
                                     </div>
                                 </div>
@@ -178,7 +189,8 @@
                                         </label>
                                         <input type="text" class="form-control" name="mothers_occupation"
                                             placeholder="Mother's Occupation"
-                                            value="{{ $helath_card->mothers_occupation }}" required>
+                                            @if ($helath_card_id != null) value="{{ $helath_card->mothers_occupation }}" @endif
+                                            required>
                                     </div>
                                 </div>
                             </div>
@@ -200,7 +212,7 @@
                                         </label>
                                         <input type="number" class="form-control" name="additional_mobile"
                                             placeholder="additional mobile number"
-                                            value="{{ $helath_card->additional_mobile }}">
+                                            @if ($helath_card_id != null) value="{{ $helath_card->additional_mobile }}" @endif>
                                     </div>
                                 </div>
                             </div>
@@ -211,7 +223,9 @@
                                         <label style="margin-left: 10px; font-size: 12px; font-weight:600">Email
                                         </label>
                                         <input type="text" class="form-control" name="email"
-                                            placeholder="email" value="{{ $helath_card->email }}" required>
+                                            placeholder="email"
+                                            @if ($helath_card_id != null) value="{{ $helath_card->email }}" @endif
+                                            required>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
@@ -219,7 +233,9 @@
                                         <label style="margin-left: 10px; font-size: 12px; font-weight:600">Pincode
                                         </label>
                                         <input type="number" class="form-control" name="pincode"
-                                            placeholder="pincode" value="{{ $helath_card->pincode }}" required>
+                                            placeholder="pincode"
+                                            @if ($helath_card_id != null) value="{{ $helath_card->pincode }}" @endif
+                                            required>
                                     </div>
                                 </div>
                             </div>
@@ -231,7 +247,9 @@
                                             & Address of Family Physician
                                         </label>
                                         <textarea class="form-control" type="text" name="family_physician_details"
-                                            placeholder="Name & Address of Family Physician"> {{ $helath_card->family_physician_details }} </textarea>
+                                            placeholder="Name & Address of Family Physician">  @if ($helath_card_id != null)
+{{ $helath_card->family_physician_details }}
+@endif </textarea>
 
                                     </div>
                                 </div>
@@ -245,9 +263,10 @@
                                         </label>
                                         <input type="number" class="form-control" name="physician_phone"
                                             placeholder="physician phone"
-                                            value="{{ $helath_card->physician_phone }}">
+                                            @if ($helath_card_id != null) value="{{ $helath_card->physician_phone }}" @endif>
                                     </div>
                                 </div>
+
 
                                 @php
                                     $histories = ['jaundice', 'allergies', 'blood-transaction'];
@@ -256,11 +275,13 @@
                                     $typhoid_given_on = ['1st(5Yr.)', 'IV(8.)', 'VII(11Yr.)', 'X(14Yr.)'];
                                     $tetanus_given_on = ['10yrs or Class VI', '15yrs or Class XI'];
 
-                                    $history_var = json_decode($helath_card->past_history, true);
-                                    $implants_var = json_decode($helath_card->any_implant_accessories, true);
-                                    $hepatitis_var = json_decode($helath_card->hepatitis_given_on, true);
-                                    $typhoid_var = json_decode($helath_card->typhoid_given_on, true);
-                                    $tetanus_var = json_decode($helath_card->tetanus_given_on, true);
+                                    if ($helath_card_id != null) {
+                                        $history_var = json_decode($helath_card->past_history, true);
+                                        $implants_var = json_decode($helath_card->any_implant_accessories, true);
+                                        $hepatitis_var = json_decode($helath_card->hepatitis_given_on, true);
+                                        $typhoid_var = json_decode($helath_card->typhoid_given_on, true);
+                                        $tetanus_var = json_decode($helath_card->tetanus_given_on, true);
+                                    }
 
                                 @endphp
 
@@ -275,7 +296,8 @@
                                                 <div class="checkbox">
                                                     <input id="past_history{{ $index }}" type="checkbox"
                                                         name="past_history[]" value="{{ $history }}"
-                                                        @if (in_array($history, $history_var)) checked @endif>
+                                                        @if ($helath_card_id != null) @if (in_array($history, $history_var)) checked @endif
+                                                        @endif>
                                                     <label
                                                         for="past_history{{ $index }}">{{ ucfirst(str_replace('-', ' ', $history)) }}</label>
                                                 </div>
@@ -308,7 +330,7 @@
                                         <label style="margin-left: 10px; font-size: 12px; font-weight:600">
                                             Remarks
                                         </label>
-                                        <textarea class="form-control" type="text" name="remarks" placeholder="remarks">{{ $helath_card->remarks }} </textarea>
+                                        <textarea class="form-control" type="text" name="remarks" placeholder="remarks">  @if ($helath_card_id != null) {{ $helath_card->remarks }} @endif </textarea>
 
                                     </div>
                                 </div>
@@ -320,7 +342,8 @@
                                         <label style="margin-left: 10px; font-size: 12px; font-weight:600">
                                             Any major illness or operation in past
                                         </label>
-                                        <textarea class="form-control" type="text" name="past_medical_history">{{ $helath_card->past_medical_history }}</textarea>
+                                        <textarea class="form-control" type="text" name="past_medical_history">   @if ($helath_card_id != null){{ $helath_card->past_medical_history }} @endif
+                                        </textarea>
 
                                     </div>
                                 </div>
@@ -340,7 +363,8 @@
                                                     <input id="any_implant_accessories{{ $index }}"
                                                         type="checkbox" name="any_implant_accessories[]"
                                                         value="{{ $item }}"
-                                                        @if (in_array($item, $implants_var)) checked @endif>
+                                                        @if ($helath_card_id != null) @if (in_array($item, $implants_var)) checked @endif
+                                                        @endif>
                                                     <label
                                                         for="any_implant_accessories{{ $index }}">{{ ucfirst(str_replace('-', ' ', $item)) }}</label>
                                                 </div>
@@ -358,7 +382,8 @@
                                             No
                                         </label>
                                         <input type="text" class="form-control" name="rt_and_lt"
-                                            placeholder="Rt or Lens No" value="{{ $helath_card->rt_and_lt }}">
+                                            placeholder="Rt or Lens No"
+                                            @if ($helath_card_id != null) value="{{ $helath_card->rt_and_lt }}" @endif>
                                     </div>
                                 </div>
                             </div>
@@ -378,7 +403,8 @@
                                                 <div class="checkbox">
                                                     <input id="hepatitis_given_on{{ $index }}" type="checkbox"
                                                         name="hepatitis_given_on[]" value="{{ $item }}"
-                                                        @if (in_array($item, $hepatitis_var)) checked @endif>
+                                                        @if ($helath_card_id != null) @if (in_array($item, $hepatitis_var)) checked @endif
+                                                        @endif>
                                                     <label
                                                         for="hepatitis_given_on{{ $index }}">{{ ucfirst(str_replace('-', ' ', $item)) }}</label>
                                                 </div>
@@ -399,7 +425,8 @@
                                                 <div class="checkbox">
                                                     <input id="typhoid_given_on{{ $index }}" type="checkbox"
                                                         name="typhoid_given_on[]" value="{{ $item }}"
-                                                        @if (in_array($item, $typhoid_var)) checked @endif>
+                                                        @if ($helath_card_id != null) @if (in_array($item, $typhoid_var)) checked @endif
+                                                        @endif>
                                                     <label
                                                         for="typhoid_given_on{{ $index }}">{{ ucfirst(str_replace('-', ' ', $item)) }}</label>
                                                 </div>
@@ -419,12 +446,14 @@
                                         <div class="checkbox-container">
                                             <div class="radio">
                                                 <input name="dt_polio_booster_given" id="1" type="radio"
-                                                    @if ($helath_card->dt_polio_booster_given == '1') checked='checked' @endif>
+                                                    @if ($helath_card_id != null) @if ($helath_card->dt_polio_booster_given == '1') checked='checked' @endif
+                                                    @endif>
                                                 <label for="1">Yes</label>
                                             </div>
                                             <div class="radio">
                                                 <input name="dt_polio_booster_given" id="0" type="radio"
-                                                    @if ($helath_card->dt_polio_booster_given == '0') checked='checked' @endif>
+                                                    @if ($helath_card_id != null) @if ($helath_card->dt_polio_booster_given == '0') checked='checked' @endif
+                                                    @endif>
                                                 <label for="0">No</label>
                                             </div>
                                         </div>
@@ -441,7 +470,8 @@
                                                 <div class="checkbox">
                                                     <input id="tetanus_given_on{{ $index }}" type="checkbox"
                                                         name="tetanus_given_on[]" value="{{ $item }}"
-                                                        @if (in_array($item, $tetanus_var)) checked @endif>
+                                                        @if ($helath_card_id != null) @if (in_array($item, $tetanus_var)) checked @endif
+                                                        @endif>
                                                     <label
                                                         for="tetanus_given_on{{ $index }}">{{ ucfirst(str_replace('-', ' ', $item)) }}</label>
                                                 </div>
@@ -458,7 +488,8 @@
                                         <label style="margin-left: 12px; font-size: 12px; font-weight:600">
                                             Present complaint(if any)
                                         </label>
-                                        <textarea class="form-control" type="text" name="present_complaint"> {{ $helath_card->present_complaint }} </textarea>
+                                        <textarea class="form-control" type="text" name="present_complaint"> @if ($helath_card_id != null) {{ $helath_card->present_complaint }} @endif
+</textarea>
 
                                     </div>
                                 </div>
@@ -468,7 +499,8 @@
                                         <label style="margin-left: 10px; font-size: 12px; font-weight:600">
                                             Current Medication(if any)
                                         </label>
-                                        <textarea class="form-control" type="text" name="current_medication">{{ $helath_card->current_medication }}</textarea>
+                                        <textarea class="form-control" type="text" name="current_medication">  @if ($helath_card_id != null) {{ $helath_card->current_medication }} @endif
+</textarea>
 
                                     </div>
                                 </div>

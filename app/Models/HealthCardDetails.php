@@ -35,6 +35,7 @@ class HealthCardDetails extends Model
         'dt_polio_booster_given',
         'present_complaint',
         'current_medication',
+        'qrcode',
         'created_at'
 
     ];

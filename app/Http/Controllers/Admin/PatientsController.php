@@ -45,30 +45,30 @@ class PatientsController extends Controller
 
         if($start_date != null && $end_date != null){
 
-            $appointments  = Invitation::with('patient','members','doctor')->whereDate('meeting_date', '>=', $start_date)->whereDate('meeting_date', '<=', $end_date)->where('status',0)->limit(4)->get();
+            $appointments  = Invitation::with('patient','members','doctor')->whereDate('meeting_date', '>=', $start_date)->whereDate('meeting_date', '<=', $end_date)->where('status',0)->where('emergency_call',0)->limit(4)->get();
 
             if($user_type == 2){
 
-                $appointments  = Invitation::with('patient','doctor','members')->where('patient_id',$user_id)->whereDate('meeting_date', '>=', $start_date)->whereDate('meeting_date', '<=', $end_date)->where('status',0)->get();
+                $appointments  = Invitation::with('patient','doctor','members')->where('patient_id',$user_id)->whereDate('meeting_date', '>=', $start_date)->whereDate('meeting_date', '<=', $end_date)->where('emergency_call',0)->where('status',0)->get();
             }
 
         }else if($start_date != null ){
 
-            $appointments  = Invitation::with('patient','members','doctor')->whereDate('meeting_date', '=', $start_date)->where('status',0)->get();
+            $appointments  = Invitation::with('patient','members','doctor')->whereDate('meeting_date', '=', $start_date)->where('emergency_call',0)->where('status',0)->get();
 
             if($user_type == 2){
 
-                $appointments  = Invitation::with('patient','doctor','members')->where('patient_id',$user_id)->whereDate('meeting_date', '=', $start_date)->where('status',0)->get();
+                $appointments  = Invitation::with('patient','doctor','members')->where('patient_id',$user_id)->whereDate('meeting_date', '=', $start_date)->where('emergency_call',0)->where('status',0)->get();
 
             }
 
         } else {
 
-            $appointments  = Invitation::with('patient','members','doctor')->where('status',0)->get();
+            $appointments  = Invitation::with('patient','members','doctor')->where('emergency_call',0)->where('status',0)->get();
 
             if($user_type == 2){
 
-                $appointments  = Invitation::with('patient','doctor','members')->where('patient_id',$user_id)->where('status',0)->get();
+                $appointments  = Invitation::with('patient','doctor','members')->where('patient_id',$user_id)->where('emergency_call',0)->where('status',0)->get();
             }
 
         }

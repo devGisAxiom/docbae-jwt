@@ -63,6 +63,15 @@ Route::post('/searchDoctor', [DoctorsController::class,'SearchDoctor']);
 // NEW INVITATION
 Route::post('/newInvitationRequest', [DoctorsController::class,'NewInvitationRequest']);
 
+// CREATE EMERGENCY CALL
+Route::post('/createEmergencyCall', [DoctorsController::class,'CreateEmergencyCall']);
+
+// GET ALL EMERGENCY CALL
+Route::post('/getEmergencyCall', [DoctorsController::class,'GetEmergencyCall']);
+
+// GET ALL EMERGENCY CALL
+Route::post('/updateEmergencyCall', [DoctorsController::class,'updateEmergencyCall']);
+
 // GET APPOINTMENTS
 Route::post('/getAppointmentList', [DoctorsController::class,'GetAppointmentList']);
 
@@ -81,11 +90,13 @@ Route::post('/createMeeting', [DoctorsController::class,'CreateMeeting']);
 // UPDATE MEETING STATUS
 Route::post('/updateMeetingStatus', [DoctorsController::class,'UpdateMeetingStatus']);
 
-// ADD NOTES
-Route::post('/addNotes', [DoctorsController::class,'AddNotes']);
+// ADD PRESCRIPTION
+Route::post('/addPrescription', [DoctorsController::class,'AddPrescription']);
+
+Route::post('/deletePrescription', [DoctorsController::class,'DeletePrescription']);
 
 // VIEW NOTES
-Route::post('/viewNotes', [DoctorsController::class,'ViewNotes']);
+Route::post('/viewPrescription', [DoctorsController::class,'ViewPrescription']);
 
 // ADD PRESCRIPTION
 // Route::post('/addPrescription', [DoctorsController::class,'AddPrescription']);
@@ -103,6 +114,15 @@ Route::post('/meetingHistory', [DoctorsController::class,'MeetingHistory']);
 
 // MEETING DETAILS
 Route::post('/invitationDetails', [DoctorsController::class,'InvitationDetails']);
+
+// GET FOLLOWUP DAYS
+Route::post('/getFollowupDays', [DoctorsController::class,'GetFollowupDays']);
+
+// CHANGE FOLLOWUP DAYS
+Route::post('/changeFollowupdays', [DoctorsController::class,'ChangeFollowupdays']);
+
+// CHAT
+Route::post('/meetingChats', [DoctorsController::class,'MeetingChats']);
 
 
 

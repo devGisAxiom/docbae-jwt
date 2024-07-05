@@ -45,6 +45,8 @@ class Doctor extends Model
         'consultation_fee',
         'commission_percentage',
         'commission_amount',
+        'emergency',
+        'followup_days',
 
     ];
 

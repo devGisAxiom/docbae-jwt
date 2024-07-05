@@ -65,6 +65,7 @@
                                 <a class="btn btn-danger btn-round"
                                     href="{{ route('doctors.delete', ['id' => $doctor['id']]) }}"
                                     onclick="Reject(event)"> Deactivate </a>
+
                             </div>
                             {{-- <button class="btn btn-success btn-round">Verified ✔</button> --}}
                         @endif
@@ -257,7 +258,7 @@
                         <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#about">About</a>
                         </li>
                         <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#documents">Documents</a></li>
-                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#fee">Fee</a></li>
+                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#fee">Settings</a></li>
 
                     </ul>
                     <div class="tab-content">
@@ -509,6 +510,13 @@
                                 $commission = App\Models\Settings::pluck('commission_percentage')->first();
                                 $amount = ($fee * $commission) / 100;
                             }
+
+                            if ($doctor->followup_days != 0) {
+                                $followup = $doctor->followup_days;
+                            } else {
+                                $followup = App\Models\Settings::pluck('followup_days')->first();
+                            }
+
                         @endphp
 
                         <div class="tab-pane body" id="fee">
@@ -542,19 +550,48 @@
                                                 placeholder="Commission amount" value="{{ $amount }}" readonly>
                                         </div>
                                     </div>
-                                    <div class="col-md-12">
-                                        <button class="btn btn-primary btn-round" type="submit">Save Changes</button>
+                                </div>
+
+
+                                <br>
+
+                                <h6 style="padding-left: 10px">SET EMERGENCY</h6>
+                                <hr>
+                                <div class="row clearfix">
+
+                                    <div class="col-lg-6 col-md-12">
+                                        <div class="checkbox">
+                                            <input id="checkbox" type="checkbox" name="emergency"
+                                                {{ $doctor->emergency == 1 ? 'checked' : '' }}>
+                                            <label for="checkbox">
+                                                Emergency Doctor
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-12">
+
+                                        <div class="form-group">
+                                            <label>Followup Days</label>
+                                            <input type="number" class="form-control" name="followup_days"
+                                                value="{{ $followup }}">
+                                        </div>
                                     </div>
                                 </div>
-                            </form>
 
+
+                                <div class="col-md-12">
+                                    <button class="btn btn-primary btn-round" type="submit">Save Changes</button>
+                                </div>
                         </div>
+                        </form>
+
                     </div>
                 </div>
-
-
             </div>
+
+
         </div>
+    </div>
     </div>
 </section>
 

@@ -100,15 +100,26 @@ class DoctorsController extends Controller
 
     public function UpdateFee(Request $request, $id)
     {
+       $emergency             = $request->emergency;
        $consultation_fee      =  $request->consultation_fee;
        $commission_percentage =  $request->commission_percentage;
        $percentage = ($consultation_fee * $commission_percentage)/100;
+
+       if($emergency == "on"){
+            $value = 1;
+       }else {
+           $value = 0;
+       }
 
         Doctor::findOrFail($id)->update([
 
             'consultation_fee'      => $consultation_fee,
             'commission_percentage' => $commission_percentage,
             'commission_amount'     => $percentage,
+            'emergency'             => $value,
+            'followup_days'         => $request->followup_days ?? 0,
+
+
         ]);
 
         return redirect()->back();

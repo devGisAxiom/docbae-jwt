@@ -20,9 +20,12 @@ use App\Http\Controllers\Admin\StudentManagementController;
 |
 */
 
-Route::get('/welcome', function () {
-    return view('welcome');
+Route::get('/dummy', function () {
+    return view('dummy');
 });
+
+Route::get('/welcome', [AdminController::class, 'welcome'])->name('welcome');
+
 
 Route::get('/', [AdminController::class, 'LoginView'])->name('login.view');
 Route::post('/login', [AdminController::class, 'Login'])->name('login.get');
@@ -31,6 +34,8 @@ Route::post('/login', [AdminController::class, 'Login'])->name('login.get');
 Route::get('/get-otp', [AdminController::class, 'GetOtp'])->name('otp.get');
 Route::post('/submit-otp', [AdminController::class, 'SubmitOtp'])->name('otp.submit');
 Route::get('/prescriptionPdf', [AdminController::class, 'PrescriptionPdf']);
+Route::get('/health-card', [AdminController::class, 'HealthCard'])->name('healthcard');
+
 Route::get('/logout', [AdminController::class, 'Logout'])->name('logout');
 
 Route::prefix('admin')->middleware(['admin'])->group(function () {

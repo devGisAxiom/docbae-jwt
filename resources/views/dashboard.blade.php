@@ -34,14 +34,15 @@
             $profile_pic = $user->profile_pic;
 
             if ($user_type == 0) {
-                $appointment_count = App\Models\Invitation::where('status', 2)->count('id');
-                $invitations_count = App\Models\Invitation::where('status', 0)->count('id');
+                $appointment_count = App\Models\Invitation::where('status', 2)->where('emergency_call', 0)->count('id');
+                $invitations_count = App\Models\Invitation::where('status', 0)->where('emergency_call', 0)->count('id');
             } else {
                 $appointment_count = App\Models\Invitation::where('patient_id', $user_id)
                     ->where('status', 2)
                     ->count('id');
                 $invitations_count = App\Models\Invitation::where('patient_id', $user_id)
                     ->where('status', 0)
+                    ->where('emergency_call', 0)
                     ->count('id');
             }
 

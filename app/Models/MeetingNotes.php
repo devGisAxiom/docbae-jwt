@@ -15,7 +15,6 @@ class MeetingNotes extends Model
 
         'meeting_info_id',
         'notes',
-
     ];
 
     public $timestamps = false;

@@ -5,15 +5,19 @@ namespace App\Http\Controllers\Admin;
 use Dompdf\Dompdf;
 use App\Models\Admin;
 use App\Models\Doctor;
+use App\Models\Member;
 use App\Models\Patient;
 use App\Models\Settings;
 use App\Models\Invitation;
 use App\Models\OtpHistory;
+use App\Models\MeetingInfo;
+use App\Models\MeetingNotes;
 use Illuminate\Http\Request;
 use App\Models\MeetingDetails;
 use Illuminate\Support\Carbon;
 use App\Models\DoctorSchedules;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\HealthCardDetails;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
@@ -24,7 +28,7 @@ class AdminController extends Controller
     {
         $doctors_count     = Doctor::where('status','<>',2)->where('is_verified',1)->count('id');
         $patients_count    = Patient::where('status','<>',2)->where('user_type',1)->count('id');
-        $invitations      = Invitation::with('patient','members','doctor')->orderBy('id','desc')->limit(5)->where('status',2)->get();
+        $invitations      = Invitation::with('patient','members','doctor')->orderBy('id','desc')->where('emergency_call',0)->limit(5)->where('status',2)->get();
 
         // dd($appointments->toArray());
 
@@ -227,6 +231,7 @@ class AdminController extends Controller
             'consultation_fee'      => $request->consultation_fee,
             'commission_percentage' => $request->commission_percentage,
             'payment_type'          => $request->payment_type,
+            'followup_days'         => $request->followup_days,
 
         ]);
 
@@ -234,8 +239,47 @@ class AdminController extends Controller
     }
     public function PrescriptionPdf()
     {
-        return view('pdf.prescription');
+         return view('pdf.prescription');
     }
 
+    public function welcome()
+    {
+        $invitation_id   = 2;
 
+        if($invitation_id != null){
+
+            $meeting_details = Invitation::where('id',$invitation_id)->get();
+
+            foreach($meeting_details as $item){
+
+                $doctor_id  = $item->doctor_id;
+                $patient_id = $item->patient_id;
+                $member_id  = $item->member_id;
+
+            }
+
+            $meeting_info_id = MeetingInfo::where('invitation_id',$invitation_id)->pluck('id')->first();
+            $notes           = MeetingNotes::where('meeting_info_id',$meeting_info_id)->pluck('notes');
+
+            $doctor  = Doctor::where('id',$doctor_id)->get();
+            $patient = Patient::where('id',$patient_id)->get();
+            $member  = Member::where('id',$member_id)->get();
+            $invitation = Invitation::where('id', $invitation_id)->get();
+
+            $meeting_info = MeetingInfo::where('invitation_id', $invitation_id)->get();
+
+        }
+
+        return view('welcome', compact('doctor','patient','member','invitation','meeting_info'));
+    }
+
+    public function HealthCard(Request $request)
+    {
+        $id         = $request->id;
+        $student    = Member::findOrFail($id);
+        $details_id = HealthCardDetails::where('student_id',$id)->pluck('id')->first();
+        $details    = HealthCardDetails::findOrFail($details_id);
+
+        return view('pdf.student_health_card', compact('student','details'));
+    }
 }
