@@ -382,6 +382,8 @@ class DoctorsController extends Controller
 
     public function UpdateDoctorProfile(Request $request)
     {
+        dd($request->dob);
+        exit;
         if ($request->id != null) {
 
             $user   = Doctor::where('id', $request->id)->where('status', 1)->exists();
@@ -512,7 +514,7 @@ class DoctorsController extends Controller
                     'mobile'                                     => $request->mobile ?? $doctor->mobile,
                     'gender'                                     => $request->gender ?? $doctor->gender,
                     'email'                                      => $request->email ?? $doctor->email,
-                    'age'                                        => $request->age ?? $doctor->age,
+                    'dob'                                        => $request->dob ?? $doctor->dob,
                     'profile_pic'                                => $profile ?? "",
                     'address'                                    => $request->address ?? $doctor->address,
                     'location'                                   => $request->location ?? $doctor->location,

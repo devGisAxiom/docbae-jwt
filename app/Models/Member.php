@@ -21,7 +21,6 @@ class Member extends Model
         'image',
         'name',
         'dob',
-        'age',
         'gender',
         'relationship_id',
         'blood_group_id',
@@ -45,6 +44,11 @@ class Member extends Model
     public function grade(){
 
     	return $this->belongsTo(Grade::class,'grade_id','id');
+    }
+
+    public function patient(){
+
+    	return $this->belongsTo(Patient::class,'patient_id','id');
     }
 
 }

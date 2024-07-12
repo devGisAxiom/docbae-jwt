@@ -163,5 +163,7 @@ Route::post('/updateDoctorStatus', [StatusController::class,'UpdateDoctorStatus'
 // INSTITUTION
 Route::post('/institutionProfile', [InstitutionController::class,'InstitutionProfile']);
 
+// INSTITUTION
+Route::get('/getHealthCard', [InstitutionController::class,'GetHealthCard']);
 
 

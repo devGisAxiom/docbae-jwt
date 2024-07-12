@@ -40,11 +40,14 @@ class PatientsController extends Controller
 
                 }
 
+                $dateOfBirth = Carbon::parse($request->dob);
+                $age = $dateOfBirth->age;
+
                 $patient                 = new Patient();
                 $patient->user_type      = 1;
                 $patient->name           = $request->name;
-                $patient->dob            = $request->dob ?? 0;
-                $patient->age            = $request->age ?? 0;
+                $patient->dob            = $request->dob ?? "";
+                // $patient->age            = $age ?? 0;
                 $patient->gender         = $request->gender ?? 0;
                 $patient->blood_group_id = $request->blood_group_id;
                 $patient->mobile         = $request->mobile;
@@ -70,8 +73,8 @@ class PatientsController extends Controller
                     'user_type'       => 1,
                     'patient_id'      => $patient->id,
                     'name'            => $request->name,
-                    'dob'             => $request->dob ?? 0,
-                    'age'             => $request->age ?? 0,
+                    'dob'             => $request->dob ?? "",
+                    // 'age'             => $age,
                     'gender'          => $request->gender ?? "",
                     'relationship_id' => 7,
                     'blood_group_id'  => $request->blood_group_id,
@@ -94,8 +97,8 @@ class PatientsController extends Controller
     {
         if( $request->id != null ){
 
-            $user   = Patient::where('id', $request->id)->where('status','<>',2)->exists();
-            $mobile = Patient::where('id','<>',$request->id)->where('mobile', $request->mobile)->where('status', '<>', 2)->exists();
+            $user   = Patient::where('id', $request->id)->where('user_type',1)->where('status','<>',2)->exists();
+            $mobile = Patient::where('id','<>',$request->id)->where('user_type',1)->where('mobile', $request->mobile)->where('status', '<>', 2)->exists();
 
             if($mobile == 0){
 
@@ -116,18 +119,39 @@ class PatientsController extends Controller
                         $path       = "public/Images/Patients/Profile_picture/$pic";
                     }
 
+                    $dateOfBirth = Carbon::parse($request->dob);
+                    $age         = $dateOfBirth->age;
+
+
                     Patient::findOrFail($request->id)->update([
 
-                        'name'        => $request->name ?? $user->name,
-                        'mobile'      => $request->mobile ?? $user->mobile,
-                        'location'    => $request->location ?? $user->location,
-                        'email'       => $request->email ?? $user->email,
-                        'profile_pic' => $pic ?? $user->profile_pic,
+                        'name'           => $request->name ?? $user->name,
+                        'dob'            => $request->dob ?? $user->dob,
+                        // 'age'            => $age ?? $user->age,
+                        'gender'         => $request->gender ?? $user->gender,
+                        'mobile'         => $request->mobile ?? $user->mobile,
+                        'location'       => $request->location ?? $user->location,
+                        'email'          => $request->email ?? $user->email,
+                        'blood_group_id' => $request->blood_group_id ?? $user->blood_group_id,
+                        'profile_pic'    => $pic ?? $user->profile_pic,
+
+                    ]);
+
+                    Member::where('patient_id',$request->id)->update([
+
+                        'name'            => $request->name ?? $user->name,
+                        'dob'             => $request->dob ?? $user->dob,
+                        // 'age'             => $age ?? $user->age,
+                        'gender'          => $request->gender ?? $user->gender,
+                        'relationship_id' => 7,
+                        'blood_group_id'  => $request->blood_group_id,
+                        'image'           => $pic ?? $user->profile_pic,
+
 
                     ]);
 
 
-                    $updated_info = Patient::where('id',$request->id)->select('name','mobile','location','email','profile_pic')->get();
+                    $updated_info = Patient::where('id',$request->id)->select('name','dob','mobile','location','email','profile_pic','blood_group_id')->get();
 
                     return response()->json(['response' => 'success', 'result'=> $updated_info]);
 
@@ -212,12 +236,12 @@ class PatientsController extends Controller
     {
         $patient_id       = $request->patient_id;
         $name             = $request->name;
-        $age              = $request->age;
+        $dob              = $request->dob;
         $gender           = $request->gender;
         $relationship_id  = $request->relationship_id;
         $blood_group_id   = $request->blood_group_id;
 
-        if($patient_id != null && $name != null && $age != null && $gender != null && $relationship_id != null && $blood_group_id != null) {
+        if($patient_id != null && $name != null && $dob != null && $gender != null && $relationship_id != null && $blood_group_id != null) {
 
             if ($request->file('image') != null) {
                 $file       = $request->file('image');
@@ -236,7 +260,7 @@ class PatientsController extends Controller
                 $family_member->user_type       = 1;
                 $family_member->patient_id      = $patient_id;
                 $family_member->name            = $name;
-                $family_member->age             = $age;
+                $family_member->dob             = $dob;
                 $family_member->gender          = $gender;
                 $family_member->relationship_id = $relationship_id;
                 $family_member->blood_group_id  = $blood_group_id;
@@ -327,12 +351,11 @@ class PatientsController extends Controller
                     }
                 }
 
-
                 Member::findOrFail($request->id)->update([
 
                     'patient_id'      => $request->patient_id ?? $user->patient_id,
                     'name'            => $request->name ?? $user->name,
-                    'age'             => $request->age?? $user->age,
+                    'dob'             => $request->dob?? $user->dob,
                     'gender'          => $request->gender ?? $user->gender,
                     'relationship_id' => $request->relationship_id ?? $user->relationship_id,
                     'blood_group_id'  => $request->blood_group_id ?? $user->blood_group_id,

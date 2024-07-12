@@ -244,7 +244,7 @@ class AdminController extends Controller
 
     public function welcome()
     {
-        $invitation_id   = 2;
+        $invitation_id   = 1;
 
         if($invitation_id != null){
 
@@ -281,5 +281,10 @@ class AdminController extends Controller
         $details    = HealthCardDetails::findOrFail($details_id);
 
         return view('pdf.student_health_card', compact('student','details'));
+    }
+
+    public function ErrorPage()
+    {
+        return view('error_page');
     }
 }

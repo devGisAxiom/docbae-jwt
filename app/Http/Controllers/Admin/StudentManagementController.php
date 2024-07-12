@@ -12,9 +12,11 @@ use App\Helpers\CustomHelper;
 use App\Models\MembersMapping;
 use App\Models\RegistrationId;
 use Illuminate\Support\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\HealthCardDetails;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 
@@ -81,7 +83,6 @@ class StudentManagementController extends Controller
             $member->mobile          = $request->mobile ?? "";
             $member->image           = $profile ?? "";
             $member->dob             = $request->dob;
-            $member->age             = $request->age ?? 0;
             $member->gender          = $request->gender;
             $member->status          = 1;
             $member->unique_id       = $unique_id;
@@ -155,7 +156,6 @@ class StudentManagementController extends Controller
                 'mobile'           => $request->mobile ?? "",
                 'image'            => $profile ?? $student->image,
                 'dob'              => $request->dob,
-                'age'              => $request->age ?? 0,
                 'gender'           => $request->gender,
                 'status'           => 1,
 
@@ -261,18 +261,15 @@ class StudentManagementController extends Controller
         $helath_card = HealthCardDetails::where('student_id',$request->id)->exists();
 
         // qrcode
-        $url = "http://15.206.79.66/docbae/public/health-card?id=" . $id;
-        $qrCode = QrCode::size(200)->generate($url);
+        // $url = "http://15.206.79.66/docbae/public/health-card?id=" . $id;
+        $qrCode = QrCode::size(200)->generate($id);
 
-        $path = 'Images/qr-codes/';
+        $path = 'qr-codes/';
         $filename = 'qr-code-' . $id . '.svg';
 
-        // Storage::disk('public')->put($path . $filename, $qrCode);
+        Storage::disk('public')->put($path . $filename, $qrCode);
 
-        // $publicUrl = asset('storage/' . $path . $filename);
-
-        $fullPath = public_path($path) . $filename;
-
+        $publicUrl = asset('storage/' . $path . $filename);
 
 
         if($helath_card == 0){
@@ -342,4 +339,50 @@ class StudentManagementController extends Controller
 
         return redirect()->route('student.list');
     }
+
+    public function ScanHealthCard(Request $request)
+    {
+        $id      = $request->id;
+        $student = Member::with('patient')->findOrFail($id);
+
+        return view('student.scan-health-card',compact('student'));
+    }
+
+    // public function DownlodHealthcard(Request $request)
+    // {
+    //     $id        = $request->id;
+    //     $student      = Member::with('patient')->findOrFail($id);
+    //     $data   = ['student' => $student,  'image_path' => public_path('assets/Images/health-card/Health_card_Front.jpg')];
+
+    //     $pdf = Pdf::setOptions(['defaultFont' => 'sans-serif'])->loadView('pdf.download_health_card', $data);
+
+    //     return $pdf->download('download_health_card.pdf');
+
+    // }
+
+    public function DownlodHealthcard(Request $request)
+    {
+
+        $id      = $request->id;
+        $student = Member::with('patient')->findOrFail($id);
+        $image   = $student->image;
+        $qrcode = HealthCardDetails::where('student_id', $student->id)
+        ->pluck('qrcode')
+        ->first();
+
+        $data = [
+
+            'image_path' => public_path('assets/images/Health_card_Front.jpg'),
+            'profile_pic' => public_path('Images/Institution/Student/'.$image),
+            'qr_code' => public_path('assets/images/qr-code-7.svg'),
+            'student' => $student,
+
+        ];
+
+        $pdf = PDF::loadView('pdf.download_health_card', $data);
+        return $pdf->download('download_health_card.pdf');
+
+    }
+
+
 }

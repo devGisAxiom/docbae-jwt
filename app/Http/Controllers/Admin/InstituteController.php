@@ -47,14 +47,13 @@ class InstituteController extends Controller
             'mobile' => 'required|min:10|digits:10|unique:patients,mobile',
         ]);
 
-        if ($request->profile_pic!= null) {
-
-            $file  = $request->profile_pic;
-            $pic   = $file->getClientOriginalName();
-            $request->profile_pic->move(public_path('Images/Institution/Profile_picture'), $pic);
-            $path       = "public/Images/Institution/Profile_picture/$pic";
-
+        if ($request->file('profile_pic') != null) {
+            $file       = $request->file('profile_pic');
+            $profile   = $file->getClientOriginalName();
+            $request->profile_pic->move(public_path('Images/Doctor/Institution'), $profile);
+            $path       = "public/Images/Institution/Profile_picture/$profile";
         }
+
 
         if ($request->authorization_letter!= null) {
 
@@ -75,7 +74,7 @@ class InstituteController extends Controller
             'email'                 => $request->email,
             'no_of_participants'    => $request->no_of_participants ?? 0,
             'authorization_letter'  => $letter ?? "",
-            'profile_pic'           => $pic ?? "",
+            'profile_pic'           => $profile ?? "",
             'institution_type'      => $request->institution_type_id ?? 0,
             'institution_sub_type'  => $request->institution_sub_type_id ?? 0,
 

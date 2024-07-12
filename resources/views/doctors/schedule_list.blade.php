@@ -78,10 +78,19 @@
                                         // }
 
                                     @endphp
+
+
                                     <tr>
-                                        <td> <img
-                                                src="{{ asset('Images/Doctor/Profile_picture/' . $item->doctor->profile_pic) }}"
-                                                alt="Avatar" style="width: 50px; height: 50px"></td>
+                                        <td>
+                                            @if ($item->profile_pic == null)
+                                                <img src="{{ asset('assets/images/doctors/user.jpg') }}"
+                                                    class="img-fluid" alt="profile-image" />
+                                            @else
+                                                <img src="{{ asset('Images/Doctor/Profile_picture/' . $item->profile_pic) }}"
+                                                    style="width: 180px; height:180px;" class="img-fluid"
+                                                    alt="profile-image" />
+                                            @endif
+                                        </td>
                                         <td><span class="list-name">{{ $item->doctor->first_name }}
                                                 {{ $item->doctor->last_name }}<span>
                                         </td>

@@ -200,7 +200,6 @@ class DoctorsController extends Controller
 
                     $user_id    = OtpHistory::where('otp', $otp)->pluck('user_id')->first();
                     $doctor_id  = Doctor::where('id', $user_id)->where('status', 1)->exists();
-
                     $id         = OtpHistory::where('otp', $otp)->pluck('id')->first();
 
                     if ($doctor_id == 1) {
@@ -264,7 +263,6 @@ class DoctorsController extends Controller
 
     public function DoctorRegister(Request $request)
     {
-
         $mobile = Doctor::where('mobile', $request->mobile)->where('status', 1)->exists();
         $type   = $request->type;
         $first_name = $request->first_name;
@@ -345,7 +343,7 @@ class DoctorsController extends Controller
             $doctor->first_name                                   = $request->first_name;
             $doctor->last_name                                    = $request->last_name ?? "";
             $doctor->mobile                                       = $request->mobile;
-            $doctor->age                                          = $request->age;
+            $doctor->dob                                          = $request->dob;
             $doctor->email                                        = $request->email;
             $doctor->gender                                       = $request->gender;
             $doctor->profile_pic                                  = $profile ?? "";
@@ -512,7 +510,7 @@ class DoctorsController extends Controller
                     'mobile'                                     => $request->mobile ?? $doctor->mobile,
                     'gender'                                     => $request->gender ?? $doctor->gender,
                     'email'                                      => $request->email ?? $doctor->email,
-                    'age'                                        => $request->age ?? $doctor->age,
+                    'dob'                                        => $request->dob ?? $doctor->dob,
                     'profile_pic'                                => $profile ?? "",
                     'address'                                    => $request->address ?? $doctor->address,
                     'location'                                   => $request->location ?? $doctor->location,
@@ -1639,29 +1637,37 @@ class DoctorsController extends Controller
 
         if($invitation_id != null){
 
-            $meeting_details = Invitation::where('id',$invitation_id)->get();
+            $check_invitation = Invitation::where('id',$invitation_id)->exists();
 
-            foreach($meeting_details as $item){
+            if($check_invitation == 1){
 
-                $doctor_id  = $item->doctor_id;
-                $patient_id = $item->patient_id;
-                $member_id  = $item->member_id;
+                $meeting_details = Invitation::where('id',$invitation_id)->get();
 
+                foreach($meeting_details as $item){
+
+                    $doctor_id  = $item->doctor_id;
+                    $patient_id = $item->patient_id;
+                    $member_id  = $item->member_id;
+
+                }
+
+                $meeting_info_id = MeetingInfo::where('invitation_id',$invitation_id)->pluck('id')->first();
+                $notes           = MeetingNotes::where('meeting_info_id',$meeting_info_id)->pluck('notes');
+
+                $doctor  = Doctor::where('id',$doctor_id)->get();
+                $patient = Patient::where('id',$patient_id)->get();
+                $member  = Member::where('id',$member_id)->get();
+                $invitation = Invitation::where('id', $invitation_id)->get();
+                $meeting_info = MeetingInfo::where('invitation_id', $invitation_id)->get();
+
+
+                $data = ['notes'=> $notes, 'doctor'=> $doctor, 'patient'=> $patient, 'member'=> $member, 'invitation' =>$invitation, 'meeting_info'=>$meeting_info];
+                $pdf = PDF::loadView('pdf.prescription', $data);
+                return $pdf->download('prescription.pdf');
+            } else {
+
+                 return response()->json(['response' => 'failed', 'message' => 'Invitation does not exist']);
             }
-
-            $meeting_info_id = MeetingInfo::where('invitation_id',$invitation_id)->pluck('id')->first();
-            $notes           = MeetingNotes::where('meeting_info_id',$meeting_info_id)->pluck('notes');
-
-            $doctor  = Doctor::where('id',$doctor_id)->get();
-            $patient = Patient::where('id',$patient_id)->get();
-            $member  = Member::where('id',$member_id)->get();
-            $invitation = Invitation::where('id', $invitation_id)->get();
-            $meeting_info = MeetingInfo::where('invitation_id', $invitation_id)->get();
-
-
-            $data = ['notes'=> $notes, 'doctor'=> $doctor, 'patient'=> $patient, 'member'=> $member, 'invitation' =>$invitation, 'meeting_info'=>$meeting_info];
-            $pdf = PDF::loadView('pdf.prescription', $data);
-            return $pdf->download('prescription.pdf');
         }else {
 
             return response()->json(['response' => 'failed']);
@@ -1786,4 +1792,6 @@ class DoctorsController extends Controller
             return response()->json(['response' => 'failed', 'message' => 'please enter required fields']);
         }
     }
+
+
 }

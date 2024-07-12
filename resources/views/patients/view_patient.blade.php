@@ -57,6 +57,10 @@
                                 <ul class="right_chat list-unstyled">
 
                                     @foreach ($family_members as $item)
+                                        @php
+                                            $dateOfBirth = Carbon\Carbon::parse($item->dob);
+                                            $age = $dateOfBirth->age;
+                                        @endphp
                                         <li class="online">
                                             <a href="javascript:void(0);">
                                                 <div class="media">
@@ -73,7 +77,7 @@
                                                     @endif
                                                     &nbsp;&nbsp;
                                                     <div class="media-body">
-                                                        <span class="name">{{ $item->name }} ({{ $item->age }})
+                                                        <span class="name">{{ $item->name }} ({{ $age }})
                                                         </span>
                                                         <span class="relation"> {{ $item->member->relation }} </span>
                                                         <br>

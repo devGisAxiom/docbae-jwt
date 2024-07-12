@@ -38,10 +38,15 @@
 
                         </div>
 
+                        @php
+                            use Carbon\Carbon;
+                            $dateOfBirth = Carbon::parse($doctor->dob);
+                            $age = $dateOfBirth->age;
+                        @endphp
                         <div>
                             <br>
                             <h6 class="m-b-0"><strong> {{ $doctor->first_name }} </strong> {{ $doctor->last_name }}
-                                <span> ( {{ $doctor->age }} ) </span>
+                                <span> ( {{ $age }} ) </span>
                             </h6>
                             <span class="job_post">{{ $doctor->department_name }}</span>
                             <p style="font-weight:500"> {{ $doctor->mobile }} </p>

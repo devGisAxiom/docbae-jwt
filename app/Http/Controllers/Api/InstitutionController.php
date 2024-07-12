@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Patient;
+use Zxing\QrReader;
 use App\Models\Member;
+use App\Models\Patient;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Models\HealthCardDetails;
+use Spatie\Browsershot\Browsershot;
+use App\Http\Controllers\Controller;
 
 class InstitutionController extends Controller
 {
@@ -35,11 +37,60 @@ class InstitutionController extends Controller
         }
     }
 
-    public function GetHealthCardWithQrcode(Request $request)
+    public function GetHealthCard(Request $request)
     {
-        $user_id     = $request->user_id;
-        $phone       = $request->phone;
-        $check_phone = Member::where('user_type',2)->where('mobile',$phone)->exists();
+        $student_id   = $request->student_id;
+        $mobile       = $request->mobile;
+        // $phone       = "111111";
+
+        $check_phone = Member::where('user_type',2)->where('id',$student_id)->where('mobile',$mobile)->exists();
+
+        if($check_phone ==  1){
+
+            return redirect()->route('healthcard', ['id' => $student_id]);
+        }else {
+            return redirect()->route('error');
+        }
+
+
+    }
+
+    public function HealthCard(Request $request)
+    {
+        // $user_id     = $request->user_id;
+        // $phone       = $request->phone;
+        $phone       = "111111";
+
+        // $check_phone = Member::where('user_type', 2)->where('mobile',$phone)->exists();
+
+        $filePath = storage_path('app/public/qr-codes/qr-code-7.svg');
+        $pngPath = storage_path('app/public/qr-codes/qr-code-7.png');
+
+        // Browsershot::html("<img src='{$filePath}' />")
+         Browsershot::html("<img src='{$filePath}' style='background: transparent;' />")
+        ->setScreenshotType('png')
+        ->save($pngPath);
+
+        $filePath = storage_path('app/public/qr-codes/qr-code-7.png');
+        $qrReader = new QrReader($filePath);
+        $qrCodeContent = $qrReader->text();
+
+        $check_phone = Member::where('user_type',2)->where('id',$qrCodeContent)->pluck('mobile')->first();
+
+        if($phone == $check_phone){
+
+            // $url = "http://localhost:8000/health-card?id=" . $qrCodeContent;
+            $url = "http://localhost:8000/health-card?id=7";
+
+            return redirect()->route('healthcard', ['id' => $qrCodeContent]);
+        }else {
+            return redirect()->route('error');
+        }
+
+        dd($qrCodeContent);
+        if (file_exists($filePath)) {
+            unlink($filePath);
+        }
 
 
     }

@@ -17,7 +17,7 @@ class Doctor extends Model
         'email',
         'first_name',
         'last_name',
-        'age',
+        'dob',
         'mobile',
         'gender',
         'profile_pic',

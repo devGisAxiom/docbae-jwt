@@ -44,6 +44,11 @@
                                 <tbody>
                                     @php $i = 1;   @endphp
                                     @foreach ($doctors as $item)
+                                        @php
+
+                                            $dateOfBirth = Carbon\Carbon::parse($item->dob);
+                                            $age = $dateOfBirth->age;
+                                        @endphp
                                         <tr>
                                             <td>{{ $i++ }} </td>
                                             <td>
@@ -60,7 +65,7 @@
 
                                             <td> {{ $item->first_name }} {{ $item->last_name }}</td>
                                             <td> {{ $item->mobile }} </td>
-                                            <td>{{ $item->age }} </td>
+                                            <td>{{ $age }} </td>
                                             <td> {{ $item->location }}</td>
 
                                             <td>

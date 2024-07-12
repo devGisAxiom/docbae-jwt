@@ -94,64 +94,64 @@
 
         <div class="info-row">
             <div class="info-left">
-                <label><b>Name:</b> {{ $student->name }}</label>
+                <label><b>Name:</b> <span style="padding-left: 20%"> {{ $student->name }}</label>
             </div>
             <div class="info-center">
-                <label><b>Age:</b> {{ $student->age }}</label>
+                <label><b>Age:</b> <span style="padding-left: 24%"> {{ $student->age }}</label>
             </div>
         </div>
 
         <div class="info-row">
             <div class="info-left">
-                <label><b>DOB:</b> {{ $student->dob }}</label>
+                <label><b>DOB:</b> <span style="padding-left: 22%"> {{ $student->dob }}</label>
             </div>
             <div class="info-center">
-                <label><b>Class:</b> {{ $grade }}</label>
+                <label><b>Class:</b> <span style="padding-left: 20%"> {{ $grade }}</label>
             </div>
         </div>
 
         <div class="info-row">
             <div class="info-left">
-                <label><b>Blood Group:</b> {{ $blood_group }}</label>
+                <label><b>Blood Group:</b> <span style="padding-left: 7%"> {{ $blood_group }}</label>
             </div>
             <div class="info-center">
-                <label><b>Gender:</b> {{ $check_gender }}</label>
+                <label><b>Gender:</b><span style="padding-left:17%"> {{ $check_gender }}</label>
             </div>
         </div>
 
         <div class="info-row">
             <div class="info-left">
-                <label><b>Father:</b> {{ $details->fathers_name }}</label>
+                <label><b>Father:</b> <span style="padding-left: 19%"> {{ $details->fathers_name }}</label>
             </div>
             <div class="info-center">
-                <label><b>Occupation:</b> {{ $details->fathers_occupation }}</label>
+                <label><b>Occupation:</b><span style="padding-left: 10%"> {{ $details->fathers_occupation }}</label>
             </div>
         </div>
 
         <div class="info-row">
             <div class="info-left">
-                <label><b>Mother:</b> {{ $details->mothers_name }}</label>
+                <label><b>Mother:</b> <span style="padding-left: 18%"> {{ $details->mothers_name }}</label>
             </div>
             <div class="info-center">
-                <label><b>Occupation:</b> {{ $details->mothers_occupation }}</label>
+                <label><b>Occupation:</b><span style="padding-left: 10%"> {{ $details->mothers_occupation }}</label>
             </div>
         </div>
 
         <div class="info-row">
             <div class="info-left">
-                <label><b>Mobile 1:</b> {{ $student->mobile }}</label>
+                <label><b>Mobile 1:</b> <span style="padding-left: 15%"> {{ $student->mobile }}</label>
             </div>
             <div class="info-center">
-                <label><b>Mobile 2:</b> {{ $details->additional_mobile }}</label>
+                <label><b>Mobile 2:</b> <span style="padding-left: 15%"> {{ $details->additional_mobile }}</label>
             </div>
         </div>
 
         <div class="info-row">
             <div class="info-left">
-                <label><b>Pincode:</b> {{ $details->pincode }}</label>
+                <label><b>Pincode:</b> <span style="padding-left: 16%"> {{ $details->pincode }}</label>
             </div>
             <div class="info-center">
-                <label><b>Email:</b> {{ $details->email }}</label>
+                <label><b>Email:</b><span style="padding-left: 21%"> {{ $details->email }}</label>
             </div>
         </div>
 
@@ -170,7 +170,7 @@
         <br>
 
         <div>
-            <label class="label-head">Past History</label> &nbsp;
+            <label class="label-head">Past History:</label> &nbsp;
             @foreach ($histories as $index => $history)
                 <label><input id="past_history{{ $index }}" type="checkbox" name="past_history[]"
                         value="{{ $history }}" @if (in_array($history, $history_var)) checked @endif>
@@ -180,13 +180,13 @@
 
         <div style="padding-top: 5px">
             <label class="label-head">Remarks:</label>
-            <label style="padding-left: 30px"> {{ $details->remarks }}</label>
+            <label style="padding-left: 10px"> {{ $details->remarks }}</label>
         </div>
         <br>
 
         <div>
             <label class="label-head">Any Major illness or operations in the past:</label>
-            <label style="padding-left: 20px">{{ $details->past_medical_history }}</label>
+            <label style="padding-left: 10px">{{ $details->past_medical_history }}</label>
         </div>
         <br>
 
@@ -196,7 +196,7 @@
                 <label><input id="any_implant_accessories{{ $index }}" type="checkbox"
                         name="any_implant_accessories[]" value="{{ $item }}"
                         @if (in_array($item, $implants_var)) checked @endif>
-                    {{ ucfirst(str_replace('-', ' ', $item)) }}</label> &nbsp;
+                    {{ ucfirst(str_replace('-', ' ', $item)) }}</label>
             @endforeach
             <label><b>Rt or Lt:</b> {{ $details->rt_and_lt }}</label>
         </div>
@@ -205,9 +205,8 @@
         <div>
             <label class="label-head">Hepatitis B given on:</label>
             @foreach ($hepatitis as $index => $item)
-                <label style="padding-left: 48px"><input id="hepatitis_given_on{{ $index }}" type="checkbox"
-                        name="hepatitis_given_on[]" value="{{ $item }}"
-                        @if (in_array($item, $hepatitis_var)) checked @endif>
+                <label><input id="hepatitis_given_on{{ $index }}" type="checkbox" name="hepatitis_given_on[]"
+                        value="{{ $item }}" @if (in_array($item, $hepatitis_var)) checked @endif>
                     {{ ucfirst(str_replace('-', ' ', $item)) }}</label>
             @endforeach
         </div>
@@ -216,9 +215,8 @@
         <div>
             <label class="label-head">Typhoid given on class:</label>
             @foreach ($typhoid_given_on as $index => $item)
-                <label style="padding-left: 26px"><input id="typhoid_given_on{{ $index }}" type="checkbox"
-                        name="typhoid_given_on[]" value="{{ $item }}"
-                        @if (in_array($item, $typhoid_var)) checked @endif>
+                <label><input id="typhoid_given_on{{ $index }}" type="checkbox" name="typhoid_given_on[]"
+                        value="{{ $item }}" @if (in_array($item, $typhoid_var)) checked @endif>
                     {{ ucfirst(str_replace('-', ' ', $item)) }}</label>
             @endforeach
         </div>
@@ -226,7 +224,7 @@
 
         <div>
             <label class="label-head">D.T. & Polio Booster given:</label>
-            <label style="padding-left: 2px"><input type="checkbox"> Yes</label>
+            <label><input type="checkbox"> Yes</label>
             <label><input type="checkbox"> No</label>
         </div>
         <br>
@@ -234,9 +232,8 @@
         <div>
             <label class="label-head">Tetanus given on:</label>
             @foreach ($tetanus_given_on as $index => $item)
-                <label style="padding-left: 70px"><input id="tetanus_given_on{{ $index }}" type="checkbox"
-                        name="tetanus_given_on[]" value="{{ $item }}"
-                        @if (in_array($item, $tetanus_var)) checked @endif>
+                <label><input id="tetanus_given_on{{ $index }}" type="checkbox" name="tetanus_given_on[]"
+                        value="{{ $item }}" @if (in_array($item, $tetanus_var)) checked @endif>
                     {{ ucfirst(str_replace('-', ' ', $item)) }}</label>
             @endforeach
         </div>
@@ -244,13 +241,13 @@
 
         <div>
             <label class="label-head">Present Complaint (If Any):</label>
-            <label style="padding-left: 20px"> {{ $details->present_complaint }} </label>
+            <label style="padding-left: 10px"> {{ $details->present_complaint }} </label>
         </div>
         <br>
 
         <div>
             <label class="label-head">Current Medication (If Any):</label>
-            <label style="padding-left: 20px"> {{ $details->current_medication }} </label>
+            <label style="padding-left: 10px"> {{ $details->current_medication }} </label>
         </div>
         <br>
     </div>

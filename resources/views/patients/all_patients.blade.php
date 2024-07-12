@@ -45,6 +45,10 @@
                                 <tbody>
                                     @php $i = 1;   @endphp
                                     @foreach ($patients as $item)
+                                        @php
+                                            $dateOfBirth = Carbon\Carbon::parse($item->dob);
+                                            $age = $dateOfBirth->age;
+                                        @endphp
                                         <tr>
                                             <td>{{ $i++ }} </td>
                                             {{-- <td>{{ $item->unique_id }} </td> --}}
@@ -61,7 +65,7 @@
                                             </td>
 
                                             <td> {{ $item->name }}</td>
-                                            <td>34</td>
+                                            <td>{{ $age }}</td>
                                             <td> {{ $item->location }}</td>
                                             <td> {{ $item->mobile }} </td>
 

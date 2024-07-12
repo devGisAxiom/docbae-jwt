@@ -41,7 +41,8 @@
                                         <th> Name</th>
                                         <th>Grade</th>
                                         <th style="text-align: center">Health Card</th>
-                                        <th>Orcode</th>
+                                        <th>Qrcode</th>
+                                        <th style="text-align: center">Scan</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -76,9 +77,14 @@
 
                                             </td>
                                             <td>
-                                                <img src={{ asset('http://127.0.0.1:5500/storage/app/public/qr-codes/' . $qrcode) }}
+                                                <img src="{{ asset('http://127.0.0.1:5500/storage/app/public/qr-codes/' . $qrcode) }}"
                                                     style="width: 50px; height:50px">
+
                                             </td>
+
+                                            <td style="text-align: center"> <a
+                                                    href="{{ route('student.scan-health-card', ['id' => $item['id']]) }}">
+                                                    <i class="material-icons">settings_overscan</i></a></td>
 
                                             <td>
                                                 <a href="{{ route('student.add-health-card', ['id' => $item['id']]) }}">
