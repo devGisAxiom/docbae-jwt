@@ -84,7 +84,8 @@
                                         <td>
                                             @if ($item->profile_pic == null)
                                                 <img src="{{ asset('assets/images/doctors/user.jpg') }}"
-                                                    class="img-fluid" alt="profile-image" />
+                                                    class="img-fluid" alt="profile-image"
+                                                    style="width: 50px; height:50px;" />
                                             @else
                                                 <img src="{{ asset('Images/Doctor/Profile_picture/' . $item->profile_pic) }}"
                                                     style="width: 180px; height:180px;" class="img-fluid"

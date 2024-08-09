@@ -84,6 +84,10 @@ class StudentManagementController extends Controller
             $member->image           = $profile ?? "";
             $member->dob             = $request->dob;
             $member->gender          = $request->gender;
+            $member->address         = $request->address ?? "";
+            $member->height          = $request->height ?? 0;
+            $member->weight          = $request->weight ?? 0;
+            $member->lmp             = $request->lmp;
             $member->status          = 1;
             $member->unique_id       = $unique_id;
             $member->save();
@@ -130,6 +134,8 @@ class StudentManagementController extends Controller
 
     public function UpdateStudent(Request $request, $id)
     {
+        // dd($request->dob);
+
         $student = Member::findOrFail($id);
 
         if($request->file('image')!= null){
@@ -157,6 +163,10 @@ class StudentManagementController extends Controller
                 'image'            => $profile ?? $student->image,
                 'dob'              => $request->dob,
                 'gender'           => $request->gender,
+                'address'          => $request->address ?? "",
+                'height'           => $request->height ?? 0,
+                'weight'           => $request->weight ?? 0,
+                'lmp'              => $request->lmp,
                 'status'           => 1,
 
 
@@ -167,11 +177,25 @@ class StudentManagementController extends Controller
 
     public function DeleteStudent($id)
     {
+        $patient_id = Member::where('id',$id)->pluck('patient_id')->first();
+        $map_exists = MembersMapping::where('patient_id',$patient_id)->exists();
+
         Member::findOrFail($id)->update([
 
             'status'    => 2,
 
         ]);
+
+        if($map_exists == 1){
+
+            $map_id     = MembersMapping::where('patient_id',$patient_id)->pluck('id')->first();
+
+            MembersMapping::findOrFail($map_id)->update([
+
+                'status'    => 2,
+
+            ]);
+        }
 
         return redirect()->route('student.list');
 
@@ -183,6 +207,16 @@ class StudentManagementController extends Controller
         $student      = Member::findOrFail($id);
 
         return view('student.add_health_card', compact('student'));
+    }
+
+    public function HealthCard(Request $request)
+    {
+        $id         = $request->id;
+        $student    = Member::findOrFail($id);
+        $details_id = HealthCardDetails::where('student_id',$id)->pluck('id')->first();
+        $details    = HealthCardDetails::findOrFail($details_id);
+
+        return view('student.student_health_card', compact('student','details'));
     }
 
     public function SaveHealthCard(Request $request)
@@ -261,7 +295,7 @@ class StudentManagementController extends Controller
         $helath_card = HealthCardDetails::where('student_id',$request->id)->exists();
 
         // qrcode
-        // $url = "http://15.206.79.66/docbae/public/health-card?id=" . $id;
+        $url = "http://3.110.159.138/docbae/public/health-card?id=" . $id;
         $qrCode = QrCode::size(200)->generate($id);
 
         $path = 'qr-codes/';
@@ -284,21 +318,21 @@ class StudentManagementController extends Controller
                 'mothers_occupation'       => $request->mothers_occupation,
                 'email'                    => $request->email,
                 'pincode'                  => $request->pincode,
-                'additional_mobile'        => $request->additional_mobile,
-                'family_physician_details' => $request->family_physician_details,
-                'physician_phone'          => $request->physician_phone,
-                'past_history'             => $past_historyArr1,
-                'remarks'                  => $request->remarks,
-                'past_medical_history'     => $request->past_medical_history,
-                'any_implant_accessories'  => $any_implant_accessoriesArr1,
+                'additional_mobile'        => $request->additional_mobile ?? "",
+                'family_physician_details' => $request->family_physician_details ?? "",
+                'physician_phone'          => $request->physician_phone ?? "",
+                'past_history'             => $past_historyArr1 ?? "",
+                'remarks'                  => $request->remarks ?? "",
+                'past_medical_history'     => $request->past_medical_history ?? "",
+                'any_implant_accessories'  => $any_implant_accessoriesArr1 ?? "",
                 'rt_and_lt'                => $request->rt_and_lt ?? "",
-                'hepatitis_given_on'       => $hepatitis_given_onArr1,
-                'typhoid_given_on'         => $typhoid_given_onArr1,
-                'tetanus_given_on'         => $tetanus_given_onArr1,
-                'dt_polio_booster_given'   => $dt_polio_booster_given,
-                'present_complaint'        => $request->present_complaint,
-                'current_medication'       => $request->current_medication,
-                'qrcode'                   => $filename,
+                'hepatitis_given_on'       => $hepatitis_given_onArr1 ?? "",
+                'typhoid_given_on'         => $typhoid_given_onArr1 ?? "",
+                'tetanus_given_on'         => $tetanus_given_onArr1 ?? "",
+                'dt_polio_booster_given'   => $dt_polio_booster_given ?? "",
+                'present_complaint'        => $request->present_complaint ?? "",
+                'current_medication'       => $request->current_medication ?? "",
+                'qrcode'                   => $filename ?? "",
                 'created_at'               => Carbon::now('asia/kolkata'),
 
             ]);
@@ -317,21 +351,21 @@ class StudentManagementController extends Controller
                 'mothers_occupation'       => $request->mothers_occupation,
                 'email'                    => $request->email,
                 'pincode'                  => $request->pincode,
-                'additional_mobile'        => $request->additional_mobile,
-                'family_physician_details' => $request->family_physician_details,
-                'physician_phone'          => $request->physician_phone,
-                'past_history'             => $past_historyArr1,
-                'remarks'                  => $request->remarks,
-                'past_medical_history'     => $request->past_medical_history,
-                'any_implant_accessories'  => $any_implant_accessoriesArr1,
+                'additional_mobile'        => $request->additional_mobile ?? 0,
+                'family_physician_details' => $request->family_physician_details ?? "",
+                'physician_phone'          => $request->physician_phone ?? "",
+                'past_history'             => $past_historyArr1 ?? "",
+                'remarks'                  => $request->remarks ?? "",
+                'past_medical_history'     => $request->past_medical_history ?? "",
+                'any_implant_accessories'  => $any_implant_accessoriesArr1 ?? "",
                 'rt_and_lt'                => $request->rt_and_lt ?? "",
-                'hepatitis_given_on'       => $hepatitis_given_onArr1,
-                'typhoid_given_on'         => $typhoid_given_onArr1,
-                'tetanus_given_on'         => $tetanus_given_onArr1,
+                'hepatitis_given_on'       => $hepatitis_given_onArr1 ?? "",
+                'typhoid_given_on'         => $typhoid_given_onArr1 ?? "",
+                'tetanus_given_on'         => $tetanus_given_onArr1 ?? "",
                 'dt_polio_booster_given'   => $dt_polio_booster_given,
-                'present_complaint'        => $request->present_complaint,
-                'current_medication'       => $request->current_medication,
-                'qrcode'                   => $filename,
+                'present_complaint'        => $request->present_complaint ?? "",
+                'current_medication'       => $request->current_medication ?? "",
+                // 'qrcode'                   => $filename ?? "",
                 'created_at'               => Carbon::now('asia/kolkata'),
 
             ]);
@@ -339,6 +373,8 @@ class StudentManagementController extends Controller
 
         return redirect()->route('student.list');
     }
+
+
 
     public function ScanHealthCard(Request $request)
     {
@@ -374,7 +410,8 @@ class StudentManagementController extends Controller
 
             'image_path' => public_path('assets/images/Health_card_Front.jpg'),
             'profile_pic' => public_path('Images/Institution/Student/'.$image),
-            'qr_code' => public_path('assets/images/qr-code-7.svg'),
+            'qr_code' => "http://3.110.159.138/docbae/storage/app/public/qr-codes/" . $qrcode,
+            'image_path1' => public_path('assets/images/Health_card_Back.jpg'),
             'student' => $student,
 
         ];

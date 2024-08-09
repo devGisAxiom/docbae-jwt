@@ -1,5 +1,6 @@
 @include('templates.header')
 
+
 <section class="content home">
     <div class="block-header">
         <div class="row">
@@ -34,19 +35,46 @@
             $profile_pic = $user->profile_pic;
 
             if ($user_type == 0) {
-                $appointment_count = App\Models\Invitation::where('status', 2)->where('emergency_call', 0)->count('id');
-                $invitations_count = App\Models\Invitation::where('status', 0)->where('emergency_call', 0)->count('id');
+                $appointment_count = App\Models\Invitation::where('status', 2)
+                    ->where('emergency_call', 0)
+                    ->where('doctor_id', '<>', 0)
+                    ->count('id');
+                $invitations_count = App\Models\Invitation::where('status', 0)
+                    ->where('emergency_call', 0)
+                    ->where('doctor_id', '<>', 0)
+                    ->count('id');
             } else {
                 $appointment_count = App\Models\Invitation::where('patient_id', $user_id)
+                    ->where('doctor_id', '<>', 0)
                     ->where('status', 2)
                     ->count('id');
                 $invitations_count = App\Models\Invitation::where('patient_id', $user_id)
+                    ->where('doctor_id', '<>', 0)
                     ->where('status', 0)
                     ->where('emergency_call', 0)
                     ->count('id');
             }
 
         @endphp
+
+        {{-- @if (session('success'))
+            <div id="auto-hide-success" class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div id="auto-hide-error" class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ session('error') }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        @endif --}}
+
 
         <div class="row clearfix">
 
@@ -55,6 +83,7 @@
                 @php
                     $students_count = App\Models\Member::where('user_type', 2)
                         ->where('patient_id', $user_id)
+                        ->where('status', 1)
                         ->count('id');
                 @endphp
                 <div class="col-lg-4 col-md-12">

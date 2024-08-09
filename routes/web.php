@@ -32,8 +32,11 @@ Route::post('/login', [AdminController::class, 'Login'])->name('login.get');
 Route::get('/get-otp', [AdminController::class, 'GetOtp'])->name('otp.get');
 Route::post('/submit-otp', [AdminController::class, 'SubmitOtp'])->name('otp.submit');
 Route::get('/prescriptionPdf', [AdminController::class, 'PrescriptionPdf']);
-Route::get('/health-card', [AdminController::class, 'HealthCard'])->name('healthcard');
 Route::get('/404', [AdminController::class, 'ErrorPage'])->name('error');
+
+// student health card
+Route::get('/health-card', [StudentManagementController::class, 'HealthCard'])->name('healthcard');
+
 
 Route::get('/logout', [AdminController::class, 'Logout'])->name('logout');
 
@@ -74,6 +77,9 @@ Route::prefix('admin')->middleware(['admin'])->group(function () {
      Route::get('/view-patient', [PatientsController::class, 'ViewPatients'])->name('Patient.view');
      Route::get('/invitations', [PatientsController::class, 'Appointments'])->name('appointment.list');
      Route::get('/view-appointment', [PatientsController::class, 'ViewAppointments'])->name('appointment.view');
+
+    //  emergency call
+    Route::get('/emergency-call', [PatientsController::class, 'EmergencyCall'])->name('Patients.emergency-call');
 
     // Specialities
     Route::get('/specialities', [DepartmentController::class, 'Speciality'])->name('department.speciality');
@@ -134,12 +140,14 @@ Route::prefix('institute')->middleware(['admin'])->group(function () {
        Route::get('/download-health-card/{id}', [StudentManagementController::class, 'DownlodHealthcard'])->name('download-health-card');
 
 
-
        Route::get('/invitations', [PatientsController::class, 'Appointments'])->name('institute.appointment.list');
 
         Route::controller(ReportController::class)->group(function () {
 
         Route::get('/appointment-history', 'IntitutesAppointmentReport')->name('institute.appointment-history');
+
+        //  emergency call
+        Route::get('/emergency-call', [PatientsController::class, 'EmergencyCall'])->name('institute.emergency-call');
 
     });
 });

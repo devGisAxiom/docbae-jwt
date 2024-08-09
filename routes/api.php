@@ -69,7 +69,6 @@ Route::post('/createEmergencyCall', [DoctorsController::class,'CreateEmergencyCa
 // GET ALL EMERGENCY CALL
 Route::post('/getEmergencyCall', [DoctorsController::class,'GetEmergencyCall']);
 
-// GET ALL EMERGENCY CALL
 Route::post('/updateEmergencyCall', [DoctorsController::class,'updateEmergencyCall']);
 
 // GET APPOINTMENTS
@@ -165,5 +164,11 @@ Route::post('/institutionProfile', [InstitutionController::class,'InstitutionPro
 
 // INSTITUTION
 Route::get('/getHealthCard', [InstitutionController::class,'GetHealthCard']);
+
+// INSTITUTION
+Route::get('/getStudentProfile', [InstitutionController::class,'GetStudentProfile']);
+
+// GET AVAILABLE DOCTORS
+Route::post('/getAvailableDoctors', [DoctorsController::class,'GetAvailableDoctors']);
 
 

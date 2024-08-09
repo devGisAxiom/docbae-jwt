@@ -25,11 +25,11 @@ class ReportController extends Controller
 
             if($doctor_id != null){
 
-                $appointments  = Invitation::with('patient','members','doctor')->where('doctor_id',$doctor_id)->whereDate('meeting_date', '>=', $start_date)->whereDate('meeting_date', '<=', $end_date)->where('fund_released',0)->where('status',2)->get();
+                $appointments  = Invitation::with('patient','members','doctor')->where('doctor_id',$doctor_id)->whereDate('meeting_date', '>=', $start_date)->whereDate('meeting_date', '<=', $end_date)->where('fund_released',0)->where('doctor_id','<>',0)->where('status',2)->get();
 
             } else {
 
-                $appointments  = Invitation::with('patient','members','doctor')->whereDate('meeting_date', '>=', $start_date)->whereDate('meeting_date', '<=', $end_date)->where('fund_released',0)->where('status',2)->get();
+                $appointments  = Invitation::with('patient','members','doctor')->whereDate('meeting_date', '>=', $start_date)->whereDate('meeting_date', '<=', $end_date)->where('fund_released',0)->where('doctor_id','<>',0)->where('status',2)->get();
 
             }
 
@@ -37,19 +37,19 @@ class ReportController extends Controller
 
             if($doctor_id != null){
 
-                $appointments  = Invitation::with('patient','members','doctor')->where('doctor_id',$doctor_id)->whereDate('meeting_date', '=', $start_date)->where('fund_released',0)->where('status',2)->get();
+                $appointments  = Invitation::with('patient','members','doctor')->where('doctor_id',$doctor_id)->whereDate('meeting_date', '=', $start_date)->where('fund_released',0)->where('doctor_id','<>',0)->where('status',2)->get();
             } else {
 
-                $appointments  = Invitation::with('patient','members','doctor')->whereDate('meeting_date', '=', $start_date)->where('status',2)->where('fund_released',0)->get();
+                $appointments  = Invitation::with('patient','members','doctor')->whereDate('meeting_date', '=', $start_date)->where('status',2)->where('fund_released',0)->where('doctor_id','<>',0)->get();
             }
 
         } else {
             if($doctor_id != null){
 
-                 $appointments  = Invitation::with('patient','members','doctor')->where('doctor_id',$doctor_id)->where('fund_released',0)->where('status',2)->get();
+                 $appointments  = Invitation::with('patient','members','doctor')->where('doctor_id',$doctor_id)->where('fund_released',0)->where('doctor_id','<>',0)->where('status',2)->get();
 
             } else {
-                $appointments  = Invitation::with('patient','members','doctor')->where('fund_released',0)->where('status',2)->get();
+                $appointments  = Invitation::with('patient','members','doctor')->where('fund_released',0)->where('doctor_id','<>',0)->where('status',2)->get();
             }
         }
 
@@ -60,7 +60,7 @@ class ReportController extends Controller
 
     public function PaymentReport()
     {
-        $doctor_payments  = DoctorPayment::with('doctor')->orderBy('id','desc')->get();
+        $doctor_payments  = DoctorPayment::with('doctor')->where('doctor_id','<>',0)->orderBy('id','desc')->get();
 
         return view('reports.payment_report', compact('doctor_payments'));
     }
@@ -145,7 +145,7 @@ class ReportController extends Controller
                  $appointments  = Invitation::with('patient','members','doctor')->where('doctor_id',$doctor_id)->where('fund_released',1)->where('status',2)->get();
 
             } else {
-                $appointments  = Invitation::with('patient','members','doctor')->where('fund_released',1)->where('status',2)->get();
+                $appointments  = Invitation::with('patient','members','doctor')->where('doctor_id','<>',0)->where('fund_released',1)->where('status',2)->get();
             }
         }
 
@@ -172,11 +172,11 @@ class ReportController extends Controller
 
             if($doctor_id != null){
 
-                $appointments  = Invitation::with('patient','members','doctor')->where('user_type',2)->where('patient_id',$user_id)->where('doctor_id',$doctor_id)->whereDate('meeting_date', '>=', $start_date)->whereDate('meeting_date', '<=', $end_date)->where('status',2)->get();
+                $appointments  = Invitation::with('patient','members','doctor')->where('user_type',2)->where('patient_id',$user_id)->where('doctor_id',$doctor_id)->whereDate('meeting_date', '>=', $start_date)->whereDate('meeting_date', '<=', $end_date)->where('doctor_id','<>',0)->where('status',2)->get();
 
             } else {
 
-                $appointments  = Invitation::with('patient','members','doctor')->where('user_type',2)->where('patient_id',$user_id)->whereDate('meeting_date', '>=', $start_date)->whereDate('meeting_date', '<=', $end_date)->where('status',2)->get();
+                $appointments  = Invitation::with('patient','members','doctor')->where('user_type',2)->where('patient_id',$user_id)->whereDate('meeting_date', '>=', $start_date)->whereDate('meeting_date', '<=', $end_date)->where('doctor_id','<>',0)->where('status',2)->get();
 
             }
 
@@ -184,15 +184,15 @@ class ReportController extends Controller
 
             if($doctor_id != null){
 
-                $appointments  = Invitation::with('patient','members','doctor')->where('user_type',2)->where('patient_id',$user_id)->where('doctor_id',$doctor_id)->whereDate('meeting_date', '=', $start_date)->where('status',2)->get();
+                $appointments  = Invitation::with('patient','members','doctor')->where('user_type',2)->where('patient_id',$user_id)->where('doctor_id',$doctor_id)->whereDate('meeting_date', '=', $start_date)->where('doctor_id','<>',0)->where('status',2)->get();
             } else {
 
-                $appointments  = Invitation::with('patient','members','doctor')->where('user_type',2)->where('patient_id',$user_id)->whereDate('meeting_date', '=', $start_date)->where('status',2)->get();
+                $appointments  = Invitation::with('patient','members','doctor')->where('user_type',2)->where('patient_id',$user_id)->whereDate('meeting_date', '=', $start_date)->where('doctor_id','<>',0)->where('status',2)->get();
             }
 
         } else {
 
-                $appointments  = Invitation::with('patient','members','doctor')->where('user_type',2)->where('patient_id',$user_id)->where('status',2)->get();
+                $appointments  = Invitation::with('patient','members','doctor')->where('user_type',2)->where('patient_id',$user_id)->where('doctor_id','<>',0)->where('status',2)->get();
         }
 
         return view('reports.institutes_appointment_report',compact('appointments','doctors','grades'));

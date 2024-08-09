@@ -47,8 +47,9 @@
                                     <div class="form-group">
                                         <label
                                             style="margin-left: 10px; font-size: 12px; font-weight:600 ">Mobile</label>
-                                        <input type="text" class="form-control" name="mobile" placeholder="Mobile"
-                                            value="{{ old('mobile', '') }}" required>
+                                        <input class="form-control" name="mobile" placeholder="Mobile"
+                                            value="{{ old('mobile', '') }}" type="text" pattern="[1-9]{1}[0-9]{9}"
+                                            required>
                                     </div>
                                 </div>
                             </div>
@@ -60,7 +61,7 @@
                                         <label class="label-class"
                                             style="margin-left: 10px; font-size: 12px; font-weight:600 ">DOB</label>
                                         <input type="date" class="form-control" name="dob"
-                                            value="{{ old('dob', '') }}" placeholder="Age" required>
+                                            value="{{ old('dob', '') }}" required>
                                     </div>
 
 
@@ -71,10 +72,21 @@
                                         <label
                                             style="margin-left: 10px; font-size: 12px; font-weight:600 ">Image</label>
                                         <input type="file" class="form-control datetimepicker" name="image"
-                                            placeholder="Image">
+                                            placeholder="Image" required>
                                     </div>
                                 </div>
 
+                            </div>
+
+                            <div class="row clearfix">
+
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        <label class="label-class"
+                                            style="margin-left: 10px; font-size: 12px; font-weight:600 ">Address</label>
+                                        <textarea name="address" placeholder="address" class="form-control" required></textarea>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="row clearfix">
@@ -102,6 +114,31 @@
                             <br>
 
                             <div class="row clearfix">
+
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="label-class"
+                                            style="margin-left: 10px; font-size: 12px; font-weight:600 ">Height</label>
+                                        <input type="number" class="form-control" name="height"
+                                            value="{{ old('height', '') }}" placeholder="height in cm" required>
+                                    </div>
+
+
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="label-class"
+                                            style="margin-left: 10px; font-size: 12px; font-weight:600 ">Weight</label>
+                                        <input type="number" class="form-control" name="weight"
+                                            value="{{ old('weight', '') }}" placeholder="weight" required>
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                            <div class="row clearfix">
                                 <div class="col-sm-6">
                                     <div class="form-group">
                                         <label style="margin-left: 10px; font-size: 12px; font-weight:600 ">Blood
@@ -117,6 +154,16 @@
                                         @if ($errors->has('blood_group_id'))
                                             <span class="text-danger">{{ $errors->first('blood_group_id') }}</span>
                                         @endif
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6">
+
+                                    <div class="form-group">
+                                        <label class="label-class"
+                                            style="margin-left: 10px; font-size: 12px; font-weight:600 ">LMP</label>
+                                        <input type="date" class="form-control" name="lmp"
+                                            value="{{ old('lmp', '') }}">
                                     </div>
                                 </div>
 

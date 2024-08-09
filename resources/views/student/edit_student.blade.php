@@ -55,8 +55,8 @@
                                     <div class="form-group">
                                         <label
                                             style="margin-left: 10px; font-size: 12px; font-weight:600">Mobile</label>
-                                        <input type="text" class="form-control" name="mobile" placeholder="Mobile"
-                                            value="{{ $student->mobile }}">
+                                        <input class="form-control" name="mobile" placeholder="Mobile"
+                                            value="{{ $student->mobile }}" type="text" pattern="[1-9]{1}[0-9]{9}">
                                     </div>
                                 </div>
                             </div>
@@ -81,6 +81,17 @@
                                     </select>
                                 </div>
 
+                            </div>
+
+                            <div class="row clearfix">
+
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        <label class="label-class"
+                                            style="margin-left: 10px; font-size: 12px; font-weight:600 ">Address</label>
+                                        <textarea name="address" placeholder="address" class="form-control" required> {{ $student->address }} </textarea>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="row clearfix">
@@ -117,6 +128,31 @@
                                 </div>
 
                             </div>
+
+
+                            <div class="row clearfix">
+
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="label-class"
+                                            style="margin-left: 10px; font-size: 12px; font-weight:600 ">Height</label>
+                                        <input type="number" class="form-control" name="height"
+                                            value="{{ $student->height }}" placeholder="height in cm" required>
+                                    </div>
+
+
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="label-class"
+                                            style="margin-left: 10px; font-size: 12px; font-weight:600 ">Weight</label>
+                                        <input type="number" class="form-control" name="weight"
+                                            value="{{ $student->weight }}" placeholder="weight" required>
+                                    </div>
+                                </div>
+
+                            </div>
                             <br>
 
                             <div class="row clearfix">
@@ -125,7 +161,8 @@
                                     <div class="form-group">
                                         <label for="logo"
                                             style="margin-left: 10px; font-size: 12px; font-weight:600">Image</label>
-                                        <input type="file" class="form-control" name="image" placeholder="Image">
+                                        <input type="file" class="form-control" name="image"
+                                            placeholder="Image">
 
                                         @if ($student->image != null)
                                             <img style="margin-left:12px; margin-top: 15px; width: 80px; height: 80px"
@@ -133,6 +170,17 @@
                                         @endif
                                     </div>
                                 </div>
+
+                                <div class="col-sm-6">
+
+                                    <div class="form-group">
+                                        <label class="label-class"
+                                            style="margin-left: 10px; font-size: 12px; font-weight:600 ">LMP</label>
+                                        <input type="date" class="form-control" name="lmp"
+                                            value="{{ $student->lmp }}">
+                                    </div>
+                                </div>
+
 
 
                             </div>

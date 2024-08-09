@@ -9,7 +9,7 @@
 </head>
 <style>
     body {
-        background-color: black;
+        background-color: rgb(240, 232, 232);
         font-family: Arial, Helvetica, sans-serif;
     }
 
@@ -25,6 +25,11 @@
         left: 17%;
     }
 </style>
+
+@php
+    $dob = Carbon\Carbon::parse($student->dob);
+    $age = $dob->age;
+@endphp
 
 <body>
 
@@ -45,17 +50,22 @@
         <p style="position: absolute; color:black; top: 22%; left:15%">Name <span
                 style="padding-left: 35px">:</span>&nbsp; {{ $student->name }}</p>
         <p style="position: absolute; color:black; top: 24%; left:15%">Age <span
-                style="padding-left: 49px">:</span>&nbsp; {{ $student->age }}</p>
-        <p style="position: absolute; color:black; top: 26%; left:15%">Card No <span
-                style="padding-left: 17px">:</span>&nbsp; {{ $student->unique_id }}</p>
-        <p style="position: absolute; color:black; top: 28%; left:15%">Validity <span
-                style="padding-left: 24px">:</span>&nbsp; 1234</p>
+                style="padding-left: 49px">:</span>&nbsp; {{ $age }}</p>
+        <p style="position: absolute; color:black; top: 26%; left:15%">Student Id <span
+                style="padding-left: 4px">:</span>&nbsp; {{ $student->unique_id }}</p>
+        {{-- <p style="position: absolute; color:black; top: 28%; left:15%">Validity <span
+                style="padding-left: 24px">:</span>&nbsp; 1234</p> --}}
 
 
 
         <div class="bottom-right">
             <img src="{{ $qr_code }}" style="width: 50px; height:50px;">
         </div>
+    </div>
+
+    <div style="padding-top: 40%; padding-left:12%">
+        <img src="{{ $image_path1 }}" width="500" height="333" class="center"
+            style=" position: absolute; text-align: center; color: white;">
     </div>
 
 </body>

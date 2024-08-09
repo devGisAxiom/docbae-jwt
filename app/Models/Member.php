@@ -27,6 +27,10 @@ class Member extends Model
         'status',
         'unique_id',
         'created_at',
+        'address',
+        'height',
+        'weight',
+        'lmp',
     ];
 
     public $timestamps = false;

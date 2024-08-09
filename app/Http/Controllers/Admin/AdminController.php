@@ -52,7 +52,6 @@ class AdminController extends Controller
 
         }
 
-
         return view('dashboard', compact('doctors_count','patients_count','schedules','invitations'));
     }
 
@@ -84,13 +83,13 @@ class AdminController extends Controller
 
                     $user = session()->get('user');
 
-                    return redirect()->route('admin.dashboard')->with('message', 'Login Successfully');
+                    return redirect()->route('admin.dashboard')->with('success','Login Successfully');
 
                 }
             }
 
             else {
-                return back()->with('message','User does not exist');
+                return back()->with('error','Incorrect username or password');
             }
 
         } else {
@@ -258,8 +257,6 @@ class AdminController extends Controller
 
             }
 
-            $meeting_info_id = MeetingInfo::where('invitation_id',$invitation_id)->pluck('id')->first();
-            $notes           = MeetingNotes::where('meeting_info_id',$meeting_info_id)->pluck('notes');
 
             $doctor  = Doctor::where('id',$doctor_id)->get();
             $patient = Patient::where('id',$patient_id)->get();
@@ -273,15 +270,6 @@ class AdminController extends Controller
         return view('welcome', compact('doctor','patient','member','invitation','meeting_info'));
     }
 
-    public function HealthCard(Request $request)
-    {
-        $id         = $request->id;
-        $student    = Member::findOrFail($id);
-        $details_id = HealthCardDetails::where('student_id',$id)->pluck('id')->first();
-        $details    = HealthCardDetails::findOrFail($details_id);
-
-        return view('pdf.student_health_card', compact('student','details'));
-    }
 
     public function ErrorPage()
     {

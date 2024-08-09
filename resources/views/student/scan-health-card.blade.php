@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <style>
     body {
-        background-color: black;
+        background-color: rgb(240, 232, 232);
         font-family: Arial, Helvetica, sans-serif;
     }
 
@@ -78,18 +78,20 @@
         $qrcode = App\Models\HealthCardDetails::where('student_id', $student->id)
             ->pluck('qrcode')
             ->first();
+
+        $dob = Carbon\Carbon::parse($student->dob);
+        $age = $dob->age;
     @endphp
     <div class="container">
 
-        <a href="{{ route('download-health-card', ['id' => $student->id]) }}">
+        {{-- <a href="{{ route('download-health-card', ['id' => $student->id]) }}">
             <button type="button" class="btn" type="submit"> Download<i class="fa fa-download"
                     aria-hidden="true"></i></button>
-        </a>
+        </a> --}}
         <div class="profile-pic">
             <img src="{{ asset('Images/Institution/Student/' . $student->image) }}" style="width: 70px; height: 70px">
         </div>
-        <img src="{{ asset('Images/health-card/Health_card_Front.jpg') }}" alt="Trulli" width="500" height="333"
-            class="center">
+        <img src="{{ asset('Images/health-card/Health_card_Front.jpg') }}" width="500" height="333" class="center">
 
         <div class="top-left">Health Card</div>
         <div>
@@ -97,16 +99,21 @@
                 {{ $student->patient->name }}
             </p>
             <p style="top: 44%;">Name <span style="padding-left: 45px">:</span>&nbsp; {{ $student->name }} </p>
-            <p style="top: 50%;">Age <span style="padding-left: 59px">:</span>&nbsp; {{ $student->age }} </p>
-            <p style="top: 56%;">Card No <span style="padding-left: 27px">:</span>&nbsp; {{ $student->unique_id }} </p>
-            <p style="top: 62%;">Validity <span style="padding-left: 37px">:</span>&nbsp; 10-12-2024 </p>
+            <p style="top: 50%;">Age <span style="padding-left: 59px">:</span>&nbsp; {{ $age }} </p>
+            <p style="top: 56%;">Student Id <span style="padding-left: 16px">:</span>&nbsp; {{ $student->unique_id }}
+            </p>
+            {{-- <p style="top: 62%;">Validity <span style="padding-left: 37px">:</span>&nbsp; 10-12-2024 </p> --}}
         </div>
 
         <div class="bottom-right">
-            <img src="{{ asset('http://127.0.0.1:5500/storage/app/public/qr-codes/' . $qrcode) }}"
+            <img src="{{ asset('http://3.110.159.138/docbae/storage/app/public/qr-codes/' . $qrcode) }}"
                 style="width: 50px; height:50px">
         </div>
-        {{-- <div class="centered">Centered</div>  --}}
+
+    </div>
+
+    <div>
+        <img src="{{ asset('Images/health-card/Health_card_Back.jpg') }}" width="500" height="333" class="center">
     </div>
 
 </body>

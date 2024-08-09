@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\HealthCardDetails;
 use Spatie\Browsershot\Browsershot;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Redirect;
 
 class InstitutionController extends Controller
 {
@@ -41,57 +42,73 @@ class InstitutionController extends Controller
     {
         $student_id   = $request->student_id;
         $mobile       = $request->mobile;
-        // $phone       = "111111";
 
-        $check_phone = Member::where('user_type',2)->where('id',$student_id)->where('mobile',$mobile)->exists();
+        $patient_exists   = Patient::where('mobile',$mobile)->where('status',1)->exists();
 
-        if($check_phone ==  1){
+        if($patient_exists ==1){
 
-            return redirect()->route('healthcard', ['id' => $student_id]);
-        }else {
-            return redirect()->route('error');
+            $user_type   = Patient::where('mobile',$mobile)->where('status',1)->pluck('user_type')->first();
+
+            if($user_type == 1){
+
+                $check_phone = Member::where('user_type',2)->where('id',$student_id)->where('mobile',$mobile)->exists();
+
+                if($check_phone ==  1){
+
+                    $url = "http://3.110.159.138/docbae/public/health-card?id=" . $student_id;
+                    return Redirect::to($url);
+                }else {
+
+                    $url = "http://3.110.159.138/docbae/public/404";
+                    return Redirect::to($url);
+                }
+            }else {
+
+                $institute_id = Patient::where('user_type',2)->where('mobile',$mobile)->pluck('id')->first();
+                $student      = Member::where('patient_id',$institute_id)->where('id',$student_id)->where('status',1)->exists();
+                if($student == 1){
+
+                    $url = "http://3.110.159.138/docbae/public/health-card?id=" . $student_id;
+                    return Redirect::to($url);
+                } else {
+
+                    $url = "http://3.110.159.138/docbae/public/404";
+                    return Redirect::to($url);
+                }
+            }
+
+        } else {
+            return response()->json(['response' => 'failed', 'message' => 'Phone number does not exist']);
         }
 
 
     }
 
-    public function HealthCard(Request $request)
+    public function GetStudentProfile(Request $request)
     {
-        // $user_id     = $request->user_id;
-        // $phone       = $request->phone;
-        $phone       = "111111";
+        $student_id   = $request->student_id;
+        $mobile       = $request->mobile;
 
-        // $check_phone = Member::where('user_type', 2)->where('mobile',$phone)->exists();
+        if($student_id != null)
+        {
+            $institute_id = Patient::where('user_type',2)->where('mobile',$mobile)->pluck('id')->first();
 
-        $filePath = storage_path('app/public/qr-codes/qr-code-7.svg');
-        $pngPath = storage_path('app/public/qr-codes/qr-code-7.png');
+            $student = Member::where('patient_id',$institute_id)->where('id',$student_id)->where('status',1)->exists();
 
-        // Browsershot::html("<img src='{$filePath}' />")
-         Browsershot::html("<img src='{$filePath}' style='background: transparent;' />")
-        ->setScreenshotType('png')
-        ->save($pngPath);
+            if($student == 1)
+            {
+              $student = Member::where('user_type',2)->where('id',$student_id)->where('status',1)->get();
 
-        $filePath = storage_path('app/public/qr-codes/qr-code-7.png');
-        $qrReader = new QrReader($filePath);
-        $qrCodeContent = $qrReader->text();
+              return response()->json(['response' => 'success', 'result' => $student]);
 
-        $check_phone = Member::where('user_type',2)->where('id',$qrCodeContent)->pluck('mobile')->first();
+            } else {
+                return response()->json(['response' => 'failed', 'message' => 'user not exist']);
+            }
 
-        if($phone == $check_phone){
-
-            // $url = "http://localhost:8000/health-card?id=" . $qrCodeContent;
-            $url = "http://localhost:8000/health-card?id=7";
-
-            return redirect()->route('healthcard', ['id' => $qrCodeContent]);
-        }else {
-            return redirect()->route('error');
+        } else {
+            return response()->json(['response' => 'failed', 'message' => 'please enter the required details']);
         }
-
-        dd($qrCodeContent);
-        if (file_exists($filePath)) {
-            unlink($filePath);
-        }
-
 
     }
+
 }

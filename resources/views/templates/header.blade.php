@@ -299,6 +299,11 @@
                                 </a>
                             </li>
 
+                            <li class="{{ Request::is('admin/emergency-call') ? 'active' : '' }}">
+                                <a href="{{ route('Patients.emergency-call') }}">
+                                    <i class="zmdi zmdi-calendar-check"></i><span>Emergency Call</span>
+                                </a>
+                            </li>
 
                             <li
                                 class="{{ $url == 'admin/doctors' || $url == 'admin/new-applicants' || $url == 'admin/doctors-schedule-list' ? 'active' : '' }}">
@@ -379,6 +384,12 @@
                             <li class="{{ Request::is('institute/invitations') ? 'active' : '' }}">
                                 <a href="{{ route('institute.appointment.list') }}">
                                     <i class="zmdi zmdi-calendar-check"></i><span>Invitations</span>
+                                </a>
+                            </li>
+
+                            <li class="{{ Request::is('institute/emergency-call') ? 'active' : '' }}">
+                                <a href="{{ route('institute.emergency-call') }}">
+                                    <i class="zmdi zmdi-calendar-check"></i><span>Emergency Call</span>
                                 </a>
                             </li>
 

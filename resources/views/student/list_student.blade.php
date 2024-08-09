@@ -25,7 +25,8 @@
                     <div class="header">
                         <ul class="header-dropdown">
                             <li class="remove">
-                                <a href="{{ route('student.add') }}"><i class="material-icons">add</i></a>
+                                <a href="{{ route('student.add') }}"><button class="btn btn-primary">Add
+                                        Student</button></a>
                             </li>
 
                         </ul>
@@ -40,9 +41,10 @@
                                         <th>Image</th>
                                         <th> Name</th>
                                         <th>Grade</th>
+                                        <th>Mobile</th>
                                         <th style="text-align: center">Health Card</th>
-                                        <th>Qrcode</th>
-                                        <th style="text-align: center">Scan</th>
+                                        {{-- <th>Qrcode</th> --}}
+                                        <th style="text-align: center">Student Card</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -67,7 +69,7 @@
                                                     class="rounded-circle"></td>
                                             <td> {{ $item->name }}</td>
                                             <td> {{ $item->grade->grade }} </td>
-
+                                            <td> {{ $item->mobile }}</td>
 
                                             <td style="text-align: center">
                                                 @if ($check_id == 1)
@@ -76,15 +78,24 @@
                                                 @endif
 
                                             </td>
-                                            <td>
-                                                <img src="{{ asset('http://127.0.0.1:5500/storage/app/public/qr-codes/' . $qrcode) }}"
-                                                    style="width: 50px; height:50px">
+                                            {{-- <td>
+                                                @if ($check_id == 1)
+                                                    <img src="{{ asset('http://127.0.0.1:5500/storage/app/public/qr-codes/' . $qrcode) }}"
+                                                        style="width: 50px; height:50px">
+                                                @endif
 
+                                            </td> --}}
+
+                                            <td style="text-align: center">
+                                                @if ($check_id == 1)
+                                                    <a
+                                                        href="{{ route('student.scan-health-card', ['id' => $item['id']]) }}">
+                                                        <i class="material-icons">visibility</i></a>
+                                                    &nbsp;&nbsp;
+                                                    <a href="{{ route('download-health-card', ['id' => $item->id]) }}">
+                                                        <i class="material-icons">file_download</i></a>
+                                                @endif
                                             </td>
-
-                                            <td style="text-align: center"> <a
-                                                    href="{{ route('student.scan-health-card', ['id' => $item['id']]) }}">
-                                                    <i class="material-icons">settings_overscan</i></a></td>
 
                                             <td>
                                                 <a href="{{ route('student.add-health-card', ['id' => $item['id']]) }}">

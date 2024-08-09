@@ -34,6 +34,7 @@ use App\Models\MeetingPrescription;
 use App\Http\Controllers\Controller;
 use App\Models\ReassignedInvitation;
 use Illuminate\Support\Facades\Mail;
+use Helper;
 
 
 
@@ -563,7 +564,10 @@ class DoctorsController extends Controller
             if ($user == 1) {
 
                 $is_verified = Doctor::where('id', $request->id)->where('is_verified', 1)->where('status', 1)->exists();
-                $doctor     =  Doctor::findOrFail($request->id);
+                $doctor      =  Doctor::findOrFail($request->id);
+                $dateOfBirth = Carbon::parse($doctor->dob);
+                $age         = $dateOfBirth->age;
+                $doctor->age = $age;
 
                 if($is_verified == 1){
 
@@ -571,7 +575,7 @@ class DoctorsController extends Controller
 
                 } else {
 
-                    return response()->json(['user_verification' => 'false','user' => $doctor]);
+                    return response()->json(['user_verification' => 'false', 'user' => $doctor]);
 
                 }
 
@@ -587,16 +591,20 @@ class DoctorsController extends Controller
 
     public function GetAllDoctors(Request $request)
     {
-        $doctors = Doctor::where('status', 1)->where('is_verified',1)->get();
+        // $doctors = Doctor::where('status', 1)->where('is_verified',1)->get();
 
-        // $doctors = DB::table('departments')
-        //     ->join('doctors', 'departments.id', '=', 'doctors.department_id')
-        //     ->select('doctors.*', 'departments.department')
-        //     ->where('doctors.status', '<>', 2)
-        //     ->where('doctors.is_verified',1)
-        //     ->get();
+        $doctors = Doctor::where('status', 1)
+            ->where('is_verified', 1)
+            ->get()
+            ->map(function ($doctor) {
+            $dob = $doctor->dob;
+            $age = \Carbon\Carbon::parse($dob)->age;
+            $doctor->age = $age;
 
-            return response()->json(['response' => 'success', 'result' => $doctors]);
+            return $doctor;
+        });
+
+        return response()->json(['response' => 'success', 'result' => $doctors]);
 
     }
 
@@ -967,17 +975,57 @@ class DoctorsController extends Controller
 
     public function GetEmergencyCall(Request $request)
     {
-        // $emergency_calls = Invitation::where('emergency_call',1)->where('status',0)->select('id','user_type','patient_id','member_id','meeting_date','meeting_time','created_at','status')->get();
 
-        $emergency_calls = DB::table('invitations')
+        $calls = DB::table('invitations')
+                ->join('patients', 'invitations.patient_id', '=', 'patients.id')
+                ->join('members', 'invitations.member_id', '=', 'members.id')
+                ->leftJoin('meeting_details', 'invitations.id', '=', 'meeting_details.invitation_id')
+                ->select(
+                    'invitations.id as invitation_id',
+                    'invitations.patient_id as institute_id',
+                    'invitations.member_id as patient_id',
+                    'invitations.meeting_date',
+                    'invitations.meeting_time',
+                    'invitations.status',
+                    'invitations.created_at',
+                    'patients.name as institute_name',
+                    'patients.mobile as institute_mobile',
+                    'patients.profile_pic as institute_image',
+                    'members.name as patient_name',
+                    'members.dob as patient_dob',
+                    DB::raw('TIMESTAMPDIFF(YEAR, members.dob, CURDATE()) as patient_age'),
+                    'members.image as patient_image',
+                    DB::raw('IFNULL(meeting_details.id, "") as meeting_id'),
+                    DB::raw('IFNULL(meeting_details.meeting_id, "") as meeting_room_id')
+                )
+                ->where('invitations.emergency_call', 1)
+                ->where('invitations.status', 3)
+                ->get();
+
+            $missed_calls = DB::table('invitations')
                         ->join('patients', 'invitations.patient_id', '=', 'patients.id')
                         ->join('members', 'invitations.member_id', '=', 'members.id')
-                        ->select('invitations.id as invitation_id', 'invitations.patient_id as institute_id','invitations.member_id as   patient_id_id','invitations.meeting_date','invitations.meeting_time','invitations.status','invitations.created_at','patients.name as institute_name', 'patients.mobile as institute_mobile','patients.profile_pic as institute_image', 'members.name as patient_name', 'members.age as patient_age','members.image as patient_image')
-                        ->where('invitations.emergency_call',1)
-                        ->where('invitations.status',3)
+                        ->select(
+                            'invitations.id as invitation_id',
+                            'invitations.patient_id as institute_id',
+                            'invitations.member_id as patient_id',
+                            'invitations.meeting_date',
+                            'invitations.meeting_time',
+                            'invitations.status',
+                            'invitations.created_at',
+                            'patients.name as institute_name',
+                            'patients.mobile as institute_mobile',
+                            'patients.profile_pic as institute_image',
+                            'members.name as patient_name',
+                            'members.dob as patient_dob',
+                            DB::raw('TIMESTAMPDIFF(YEAR, members.dob, CURDATE()) as patient_age'), // Calculate age
+                            'members.image as patient_image'
+                        )
+                        ->where('invitations.emergency_call', 1)
+                        ->where('invitations.status', 4)
                         ->get();
 
-        return response()->json(['response' => 'success', 'result' => $emergency_calls ]);
+        return response()->json(['response' => 'success', 'calls' => $calls , 'missed_calls' => $missed_calls]);
 
     }
 
@@ -1011,9 +1059,19 @@ class DoctorsController extends Controller
                             $emergency_calls = DB::table('invitations')
                             ->join('patients', 'invitations.patient_id', '=', 'patients.id')
                             ->join('members', 'invitations.member_id', '=', 'members.id')
-                            ->select('invitations.id as invitation_id','invitations.doctor_id', 'invitations.patient_id as institute_id','invitations.member_id as   patient_id_id','invitations.meeting_date','invitations.meeting_time','invitations.status','invitations.created_at','patients.name as institute_name', 'patients.mobile as institute_mobile','patients.profile_pic as institute_image', 'members.name as patient_name', 'members.age as patient_age','members.image as patient_image')
+                            ->select('invitations.id as invitation_id','invitations.doctor_id', 'invitations.patient_id as institute_id','invitations.member_id as   patient_id','invitations.meeting_date','invitations.meeting_time','invitations.status','invitations.created_at','patients.name as institute_name', 'patients.mobile as institute_mobile','patients.profile_pic as institute_image', 'members.name as patient_name', 'members.dob as patient_dob','members.image as patient_image')
                             ->where('invitations.id',$invitation_id)
-                            ->get();
+                            ->get()
+                            ->map(function ($record) {
+                                if ($record->patient_dob) {
+                                    $dob = Carbon::parse($record->patient_dob);
+                                    $record->patient_age = $dob->age;
+                                } else {
+                                    $record->patient_age = null;
+                                }
+
+                                return $record;
+                            });
 
                             return response()->json(['response' => 'success','emergency_calls' => $emergency_calls]);
 
@@ -1037,9 +1095,20 @@ class DoctorsController extends Controller
                     $emergency_calls = DB::table('invitations')
                                         ->join('patients', 'invitations.patient_id', '=', 'patients.id')
                                         ->join('members', 'invitations.member_id', '=', 'members.id')
-                                        ->select('invitations.id as invitation_id','invitations.doctor_id', 'invitations.patient_id as institute_id','invitations.member_id as   patient_id_id','invitations.meeting_date','invitations.meeting_time','invitations.status','invitations.created_at','patients.name as institute_name', 'patients.mobile as institute_mobile','patients.profile_pic as institute_image', 'members.name as patient_name', 'members.age as patient_age','members.image as patient_image')
+                                        ->select('invitations.id as invitation_id','invitations.doctor_id', 'invitations.patient_id as institute_id','invitations.member_id as   patient_id','invitations.meeting_date','invitations.meeting_time','invitations.status','invitations.created_at','patients.name as institute_name', 'patients.mobile as institute_mobile','patients.profile_pic as institute_image', 'members.name as patient_name', 'members.dob as patient_dob','members.image as patient_image')
                                         ->where('invitations.id',$invitation_id)
-                                        ->get();
+                                        ->get()
+                                        ->map(function ($record) {
+                                            if ($record->patient_dob) {
+                                                $dob = Carbon::parse($record->patient_dob);
+                                                $record->patient_age = $dob->age;
+                                            } else {
+                                                $record->patient_age = null;
+                                            }
+
+                                            return $record;
+                                        });
+
 
                     return response()->json(['response' => 'success','emergency_calls' => $emergency_calls]);
 
@@ -1072,38 +1141,95 @@ class DoctorsController extends Controller
 
                 if($date != null){
 
-                // $department_id   = Doctor::where('id',$user_id)->pluck('department_id')->first();
-                // $department_name = Department::pluck('department')->first();
 
-                $invitation = Invitation::with('patient','members','doctor')->whereDate('meeting_date', $date)->where('doctor_id', $user_id)->where('status', 0)->get();
+                $invitation = Invitation::with('patient','members','doctor')->whereDate('meeting_date', $date)->where('doctor_id', $user_id)->where('status', 0)->get()
+                ->map(function ($invitation) {
+
+                    if ($invitation->doctor && $invitation->doctor->dob) {
+                        $dob = Carbon::parse($invitation->doctor->dob);
+                        $invitation->doctor->age = $dob->age;
+                    }
+                    if ($invitation->patient && $invitation->patient->dob) {
+                        $dob = Carbon::parse($invitation->patient->dob);
+                        $invitation->patient->age = $dob->age;
+                    }
+                    if ($invitation->members && $invitation->members->dob) {
+                        $dob = Carbon::parse($invitation->members->dob);
+                        $invitation->members->age = $dob->age;
+                    }
+
+                    return $invitation;
+                });
+
                 } else {
-                    $invitation = Invitation::with('patient','members','doctor')->where('doctor_id', $user_id)->where('status', 0)->get();
+                    $invitation = Invitation::with('patient','members','doctor')->where('doctor_id', $user_id)->where('status', 0)->get()
+
+                    ->map(function ($invitation) {
+
+                        if ($invitation->doctor && $invitation->doctor->dob) {
+                            $dob = Carbon::parse($invitation->doctor->dob);
+                            $invitation->doctor->age = $dob->age;
+                        }
+                        if ($invitation->patient && $invitation->patient->dob) {
+                            $dob = Carbon::parse($invitation->patient->dob);
+                            $invitation->patient->age = $dob->age;
+                        }
+                        if ($invitation->members && $invitation->members->dob) {
+                            $dob = Carbon::parse($invitation->members->dob);
+                            $invitation->members->age = $dob->age;
+                        }
+
+                        return $invitation;
+                    });
 
                 }
 
 
             }
-            // else if($user_type == 1) {
-            //     $user  = Patient::where('id', $user_id)->where('status', '<>',2)->exists();
-
-            //     if($date != null){
-
-            //         $invitation = Invitation::with('patient','family_member','doctor')->whereDate('meeting_date', $date)->where('patient_id', $user_id)->where('status', 0)->get();
-            //     }else {
-
-            //         $invitation = Invitation::with('patient','family_member','doctor')->where('patient_id', $user_id)->where('status', 0)->get();
-            //     }
-            // }
 
             else {
                 $user  = Patient::where('id', $user_id)->where('status', '<>',2)->exists();
 
                 if($date != null){
 
-                    $invitation = Invitation::with('patient','members','doctor')->whereDate('meeting_date', $date)->where('patient_id', $user_id)->where('status', 0)->get();
+                    $invitation = Invitation::with('patient','members','doctor')->whereDate('meeting_date', $date)->where('patient_id', $user_id)->where('status', 0)->get()
+                    ->map(function ($invitation) {
+
+                        if ($invitation->doctor && $invitation->doctor->dob) {
+                            $dob = Carbon::parse($invitation->doctor->dob);
+                            $invitation->doctor->age = $dob->age;
+                        }
+                        if ($invitation->patient && $invitation->patient->dob) {
+                            $dob = Carbon::parse($invitation->patient->dob);
+                            $invitation->patient->age = $dob->age;
+                        }
+                        if ($invitation->members && $invitation->members->dob) {
+                            $dob = Carbon::parse($invitation->members->dob);
+                            $invitation->members->age = $dob->age;
+                        }
+
+                        return $invitation;
+                    });
                 }else {
 
-                    $invitation = Invitation::with('patient','members','doctor')->where('patient_id', $user_id)->where('status', 0)->get();
+                    $invitation = Invitation::with('patient','members','doctor')->where('patient_id', $user_id)->where('status', 0)->get()
+                    ->map(function ($invitation) {
+
+                        if ($invitation->doctor && $invitation->doctor->dob) {
+                            $dob = Carbon::parse($invitation->doctor->dob);
+                            $invitation->doctor->age = $dob->age;
+                        }
+                        if ($invitation->patient && $invitation->patient->dob) {
+                            $dob = Carbon::parse($invitation->patient->dob);
+                            $invitation->patient->age = $dob->age;
+                        }
+                        if ($invitation->members && $invitation->members->dob) {
+                            $dob = Carbon::parse($invitation->members->dob);
+                            $invitation->members->age = $dob->age;
+                        }
+
+                        return $invitation;
+                    });
                 }
             }
 
@@ -1170,19 +1296,41 @@ class DoctorsController extends Controller
         $doctor_id = $request->doctor_id;
         $date = Carbon::now()->format('Y-m-d');
 
+
         if ($doctor_id != null) {
-            $date = new DateTime('today');
 
-            $todays_appointments        = Invitation::where('doctor_id', $doctor_id)->where('meeting_date',$date)->where('status',0)->get();
-            $todays_appointment_count   = Invitation::where('doctor_id', $doctor_id)->where('meeting_date',$date)->where('status',0)->where('status',0)->count('id');
-            $upcoming_appointment_count = Invitation::where('doctor_id', $doctor_id)->where('meeting_date', '>' ,$date)->count('id');
+            $check_doctor = Doctor::where('id',$doctor_id)->exists();
+            // $check_doctor = Doctor::where('id',$doctor_id)->where('is_verified',1)->exists();
 
-            $todays_appointment_count   = Invitation::where('doctor_id', $doctor_id)->where('meeting_date',$date)->where('status',0)->count('id');
-            $total_appointment_count   = Invitation::where('doctor_id', $doctor_id)->where('meeting_date', '>=' ,$date)->where('status', 0)->count('id');
-            $appointment_history_count   = Invitation::where('doctor_id', $doctor_id)->where('status', 2)->count('id');
+            if($check_doctor == 1){
 
+                $date = new DateTime('today');
 
-            return response()->json(['response' => 'success','todays_appointments' =>$todays_appointments, 'todays_appointment_count'=>$todays_appointment_count, 'upcoming_appointment_count' => $upcoming_appointment_count, 'total_appointment_count' => $total_appointment_count,'appointment_history_count' => $appointment_history_count]);
+                $todays_appointments        = Invitation::where('doctor_id', $doctor_id)->where('meeting_date',$date)->where('status',0)->get();
+                $todays_appointment_count   = Invitation::where('doctor_id', $doctor_id)->where('meeting_date',$date)->where('status',0)->where('status',0)->count('id');
+                $upcoming_appointment_count = Invitation::where('doctor_id', $doctor_id)->where('meeting_date', '>' ,$date)->count('id');
+
+                $todays_appointment_count   = Invitation::where('doctor_id', $doctor_id)->where('meeting_date',$date)->where('status',0)->count('id');
+                $total_appointment_count    = Invitation::where('doctor_id', $doctor_id)->where('meeting_date', '>=' ,$date)->where('status', 0)->count('id');
+                $appointment_history_count  = Invitation::where('doctor_id', $doctor_id)->where('status', 2)->count('id');
+
+                $check_emergency = Doctor::where('id',$doctor_id)->where('emergency',1)->exists();
+
+                if($check_emergency == 1){
+
+                    $pending_calls = Invitation::where('emergency_call',1)->where('status',3)->count('id');
+                    $missed_calls  = Invitation::where('emergency_call',1)->where('status',4)->count('id');
+
+                    return response()->json(['response' => 'success','todays_appointments' =>$todays_appointments, 'todays_appointment_count'=>$todays_appointment_count, 'upcoming_appointment_count' => $upcoming_appointment_count, 'total_appointment_count' => $total_appointment_count,'appointment_history_count' => $appointment_history_count, 'pending_calls' => $pending_calls,'missed_calls' => $missed_calls]);
+
+                }else {
+                    return response()->json(['response' => 'success','todays_appointments' =>$todays_appointments, 'todays_appointment_count'=>$todays_appointment_count, 'upcoming_appointment_count' => $upcoming_appointment_count, 'total_appointment_count' => $total_appointment_count,'appointment_history_count' => $appointment_history_count]);
+
+                }
+            } else {
+
+                return response()->json(['response' => 'failed', 'result' => 'user does not exist']);
+            }
 
         } else{
 
@@ -1308,9 +1456,11 @@ class DoctorsController extends Controller
             return !empty($value);
         }));
 
+        $prescriptionARR = json_decode($request->medicines);
+
         $meeting_id = $request->meeting_id;
 
-        $prescriptionARR = $request->prescriptions;
+        // $prescriptionARR = $request->medicines;
 
         if($meeting_id != null)
         {
@@ -1352,32 +1502,26 @@ class DoctorsController extends Controller
                 $meeting_info_id  = MeetingInfo::where('meeting_id',$meeting_id)->pluck('id')->first();
                 $invitation_id    = MeetingInfo::where('meeting_id',$meeting_id)->pluck('invitation_id')->first();
 
-                if($meeting_info_id == 1){
+                //  if($meeting_info_id == 1){
 
                     Invitation::where('id',$invitation_id)->update([
 
                         'follow_up'  => $request->follow_up,
 
                     ]);
+                //  }
 
                     foreach ($prescriptionARR as $prescription) {
 
-                        if ($prescription['medicine_name'] != 0  && $prescription['drug_form'] != 0 && $prescription['strength'] != 0 && $prescription['duration'] != 0) {
+                        MeetingPrescription::create([
+                            'meeting_info_id'  => $meeting_info_id,
+                            'medicine_name' => $prescription->medicineName,
+                            'drug_form' => $prescription->drugForm,
+                            'strength' => $prescription->strength,
+                            'duration' => $prescription->duration,
+                        ]);
 
-                                MeetingPrescription::insert([
-
-                                    'meeting_info_id'  => $meeting_info_id,
-                                    'medicine_name'    => $prescription['medicine_name'],
-                                    'drug_form'        => $prescription['drug_form'],
-                                    'strength'         => $prescription['strength'],
-                                    'duration'         => $prescription['duration'],
-                                ]);
-
-                        } else {
-                        return response()->json(['response' => 'failed', 'message' => 'please enter required fields']);
-                        }
                     }
-                }
 
                 $meeting_information = MeetingInfo::where('meeting_id',$meeting_id)->get();
                 $prescriptions       = MeetingPrescription::where('meeting_info_id',$meeting_info_id)->get();
@@ -1531,7 +1675,6 @@ class DoctorsController extends Controller
         $user_id   = $request->user_id;
         $user_type = $request->user_type;
 
-
         if($user_id != null && $user_type != null){
 
             if($user_type == 0){
@@ -1547,10 +1690,21 @@ class DoctorsController extends Controller
                 $meeting_history = DB::table('invitations')
                                  ->join('patients', 'invitations.patient_id', '=', 'patients.id')
                                  ->join('members', 'invitations.member_id', '=', 'members.id')
-                                 ->select('invitations.id as invitation_id','invitations.user_type','invitations.meeting_date','invitations.meeting_time','invitations.patient_id','invitations.member_id','invitations.doctor_id','members.name','members.age','members.gender','members.image','patients.profile_pic','patients.user_type')
+                                 ->Join('meeting_details', 'invitations.id', '=', 'meeting_details.invitation_id')
+                                 ->select('invitations.id as invitation_id','invitations.user_type','invitations.meeting_date','invitations.meeting_time','invitations.patient_id','invitations.member_id','invitations.doctor_id','members.name','members.dob as member_dob','members.gender','members.image','patients.profile_pic','patients.user_type','meeting_details.id as meeting_id',)
                                  ->where('invitations.doctor_id','=',$user_id)
                                  ->where('invitations.status','=',2)
-                                 ->get();
+                                 ->get()
+                                 ->map(function ($record) {
+                                    if ($record->member_dob) {
+                                        $memberDob = Carbon::parse($record->member_dob);
+                                        $record->member_age = $memberDob->age;
+                                    } else {
+                                        $record->member_age = null;
+                                    }
+
+                                    return $record;
+                                });
 
             } else {
 
@@ -1558,10 +1712,21 @@ class DoctorsController extends Controller
                                 ->join('patients', 'invitations.patient_id', '=', 'patients.id')
                                 ->join('doctors', 'doctors.id', '=', 'invitations.doctor_id')
                                 ->join('members', 'invitations.member_id', '=', 'members.id')
-                                ->select('invitations.id as invitation_id','invitations.user_type','invitations.meeting_date','invitations.meeting_time','invitations.patient_id','invitations.member_id','invitations.doctor_id','members.name','members.age','members.gender','members.image','patients.profile_pic','patients.user_type','doctors.first_name','doctors.last_name','doctors.profile_pic as doctor_image','doctors.department_name')
+                                ->Join('meeting_details', 'invitations.id', '=', 'meeting_details.invitation_id')
+                                ->select('invitations.id as invitation_id','invitations.user_type','invitations.meeting_date','invitations.meeting_time','invitations.patient_id','invitations.member_id','invitations.doctor_id','members.name','members.dob as member_dob','members.gender','members.image','patients.profile_pic','patients.user_type','doctors.first_name','doctors.last_name','doctors.profile_pic as doctor_image','doctors.department_name','meeting_details.id as meeting_id',)
                                 ->where('invitations.patient_id','=',$user_id)
                                 ->where('invitations.status','=',2)
-                                ->get();
+                                ->get()
+                                ->map(function ($record) {
+                                    if ($record->member_dob) {
+                                        $memberDob = Carbon::parse($record->member_dob);
+                                        $record->member_age = $memberDob->age;
+                                    } else {
+                                        $record->member_age = null;
+                                    }
+
+                                    return $record;
+                                });
 
             }
                 return response()->json(['response' => 'success','result' => $meeting_history]);
@@ -1586,7 +1751,16 @@ class DoctorsController extends Controller
 
             if($check_department == 1){
 
-                $doctors = Doctor::where('department_name',$department_name)->where('status', '<>', 2)->where('is_verified',1)->get();
+
+                $doctors = Doctor::where('department_name',$department_name)
+                            ->where('status', '<>', 2)
+                            ->where('is_verified',1)->get()
+                            ->map(function ($doctor) {
+                            $dob = $doctor->dob;
+                            $age = Carbon::parse($dob)->age;
+                            $doctor->age = $age;
+                            return $doctor;
+                        });
 
                 return response()->json(['response' => 'success','result' => $doctors]);
 
@@ -1615,8 +1789,28 @@ class DoctorsController extends Controller
 
             if($check_id == 1){
 
-                $meeting_details = Invitation::with('doctor','patient','members')->where('id',$invitation_id)->get();
+                // $meeting_details = Invitation::with('doctor','patient','members')->where('id',$invitation_id)->get();
 
+                $meeting_details = Invitation::with('doctor', 'patient', 'members')
+                ->where('id', $invitation_id)
+                ->get()
+                ->map(function ($invitation) {
+
+                    if ($invitation->doctor && $invitation->doctor->dob) {
+                        $dob = Carbon::parse($invitation->doctor->dob);
+                        $invitation->doctor->age = $dob->age;
+                    }
+                    if ($invitation->patient && $invitation->patient->dob) {
+                        $dob = Carbon::parse($invitation->patient->dob);
+                        $invitation->patient->age = $dob->age;
+                    }
+                    if ($invitation->members && $invitation->members->dob) {
+                        $dob = Carbon::parse($invitation->members->dob);
+                        $invitation->members->age = $dob->age;
+                    }
+
+                    return $invitation;
+                });
                 return response()->json(['response' => 'success','result' => $meeting_details]);
 
             } else {
@@ -1651,17 +1845,14 @@ class DoctorsController extends Controller
 
                 }
 
-                $meeting_info_id = MeetingInfo::where('invitation_id',$invitation_id)->pluck('id')->first();
-                $notes           = MeetingNotes::where('meeting_info_id',$meeting_info_id)->pluck('notes');
-
                 $doctor  = Doctor::where('id',$doctor_id)->get();
                 $patient = Patient::where('id',$patient_id)->get();
                 $member  = Member::where('id',$member_id)->get();
                 $invitation = Invitation::where('id', $invitation_id)->get();
+
                 $meeting_info = MeetingInfo::where('invitation_id', $invitation_id)->get();
 
-
-                $data = ['notes'=> $notes, 'doctor'=> $doctor, 'patient'=> $patient, 'member'=> $member, 'invitation' =>$invitation, 'meeting_info'=>$meeting_info];
+                $data = ['doctor'=> $doctor, 'patient'=> $patient, 'member'=> $member, 'invitation' =>$invitation, 'meeting_info'=>$meeting_info];
                 $pdf = PDF::loadView('pdf.prescription', $data);
                 return $pdf->download('prescription.pdf');
             } else {
@@ -1791,6 +1982,26 @@ class DoctorsController extends Controller
         }   else {
             return response()->json(['response' => 'failed', 'message' => 'please enter required fields']);
         }
+    }
+
+    public function GetAvailableDoctors(Request $request)
+    {
+        // $doctors = Doctor::where('status', 1)->where('is_verified',1)->where('emergency',1)->get();
+
+        $doctors = Doctor::where('status', 1)
+            ->where('is_verified', 1)
+            ->where('emergency',1)
+            ->get()
+            ->map(function ($doctor) {
+            $dob = $doctor->dob;
+            $age = Carbon::parse($dob)->age;
+            $doctor->age = $age;
+
+            return $doctor;
+        });
+
+        return response()->json(['response' => 'success', 'result' => $doctors]);
+
     }
 
 

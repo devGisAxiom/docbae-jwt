@@ -210,8 +210,8 @@
                                         <label style="margin-left: 10px; font-size: 12px; font-weight:600">Additional
                                             Mobile Number
                                         </label>
-                                        <input type="number" class="form-control" name="additional_mobile"
-                                            placeholder="additional mobile number"
+                                        <input type="text" pattern="[1-9]{1}[0-9]{9}" class="form-control"
+                                            name="additional_mobile" placeholder="additional mobile number"
                                             @if ($helath_card_id != null) value="{{ $helath_card->additional_mobile }}" @endif>
                                     </div>
                                 </div>
@@ -261,8 +261,8 @@
                                         <label style="margin-left: 10px; font-size: 12px; font-weight:600">Physician
                                             Phone
                                         </label>
-                                        <input type="number" class="form-control" name="physician_phone"
-                                            placeholder="physician phone"
+                                        <input type="text" pattern="[1-9]{1}[0-9]{9}" class="form-control"
+                                            name="physician_phone" placeholder="physician phone"
                                             @if ($helath_card_id != null) value="{{ $helath_card->physician_phone }}" @endif>
                                     </div>
                                 </div>
@@ -296,15 +296,18 @@
                                                 <div class="checkbox">
                                                     <input id="past_history{{ $index }}" type="checkbox"
                                                         name="past_history[]" value="{{ $history }}"
-                                                        @if ($helath_card_id != null) @if (in_array($history, $history_var)) checked @endif
-                                                        @endif>
-                                                    <label
-                                                        for="past_history{{ $index }}">{{ ucfirst(str_replace('-', ' ', $history)) }}</label>
-                                                </div>
-                                            @endforeach
-                                        </div>
+                                                        @if ($helath_card_id != null) @if ($history_var != null)
 
-                                        {{-- <div class="checkbox-container">
+                                                        @if (in_array($history, $history_var)) checked @endif
+                                                        @endif
+                                            @endif>
+                                            <label
+                                                for="past_history{{ $index }}">{{ ucfirst(str_replace('-', ' ', $history)) }}</label>
+                                        </div>
+                                        @endforeach
+                                    </div>
+
+                                    {{-- <div class="checkbox-container">
                                             <div class="checkbox">
                                                 <input id="past_history" type="checkbox" value="jaundice">
                                                 <label for="past_history">
@@ -320,207 +323,210 @@
                                                 <label for="past_history2">Blood Transaction</label>
                                             </div>
                                         </div> --}}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row clearfix">
-                                <div class="col-sm-12">
-                                    <div class="form-group">
-                                        <label style="margin-left: 10px; font-size: 12px; font-weight:600">
-                                            Remarks
-                                        </label>
-                                        <textarea class="form-control" type="text" name="remarks" placeholder="remarks">  @if ($helath_card_id != null) {{ $helath_card->remarks }} @endif </textarea>
-
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row clearfix">
-                                <div class="col-sm-12">
-                                    <div class="form-group">
-                                        <label style="margin-left: 10px; font-size: 12px; font-weight:600">
-                                            Any major illness or operation in past
-                                        </label>
-                                        <textarea class="form-control" type="text" name="past_medical_history">   @if ($helath_card_id != null){{ $helath_card->past_medical_history }} @endif
-                                        </textarea>
-
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row clearfix">
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label style="margin-left: 10px; font-size: 12px; font-weight:600">
-                                            Using any implant or accessories
-                                        </label>
-
-
-                                        <div class="checkbox-container">
-                                            @foreach ($implants as $index => $item)
-                                                <div class="checkbox">
-                                                    <input id="any_implant_accessories{{ $index }}"
-                                                        type="checkbox" name="any_implant_accessories[]"
-                                                        value="{{ $item }}"
-                                                        @if ($helath_card_id != null) @if (in_array($item, $implants_var)) checked @endif
-                                                        @endif>
-                                                    <label
-                                                        for="any_implant_accessories{{ $index }}">{{ ucfirst(str_replace('-', ' ', $item)) }}</label>
-                                                </div>
-                                            @endforeach
-                                        </div>
-
-
-                                    </div>
-                                </div>
-
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label style="margin-left: 10px; font-size: 12px; font-weight:600">Rt and Lt or
-                                            Lens
-                                            No
-                                        </label>
-                                        <input type="text" class="form-control" name="rt_and_lt"
-                                            placeholder="Rt or Lens No"
-                                            @if ($helath_card_id != null) value="{{ $helath_card->rt_and_lt }}" @endif>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <h2 style="color:black; font-size:15px"><strong>Vaccination Status</strong> </h2>
-
-
-                            <div class="row clearfix">
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label style="margin-left: 10px; font-size: 12px; font-weight:600">
-                                            Hepatitis-B given on
-                                        </label>
-
-                                        <div class="checkbox-container">
-                                            @foreach ($hepatitis as $index => $item)
-                                                <div class="checkbox">
-                                                    <input id="hepatitis_given_on{{ $index }}" type="checkbox"
-                                                        name="hepatitis_given_on[]" value="{{ $item }}"
-                                                        @if ($helath_card_id != null) @if (in_array($item, $hepatitis_var)) checked @endif
-                                                        @endif>
-                                                    <label
-                                                        for="hepatitis_given_on{{ $index }}">{{ ucfirst(str_replace('-', ' ', $item)) }}</label>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label style="margin-left: 10px; font-size: 12px; font-weight:600">
-                                            Typhoid given on Class
-                                        </label>
-                                        <div class="checkbox-container">
-
-                                            @foreach ($typhoid_given_on as $index => $item)
-                                                <div class="checkbox">
-                                                    <input id="typhoid_given_on{{ $index }}" type="checkbox"
-                                                        name="typhoid_given_on[]" value="{{ $item }}"
-                                                        @if ($helath_card_id != null) @if (in_array($item, $typhoid_var)) checked @endif
-                                                        @endif>
-                                                    <label
-                                                        for="typhoid_given_on{{ $index }}">{{ ucfirst(str_replace('-', ' ', $item)) }}</label>
-                                                </div>
-                                            @endforeach
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row clearfix">
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label style="margin-left: 10px; font-size: 12px; font-weight:600"> D.T.& Polio
-                                            Booster given on ( To be given at the age of 5 yrs or class 1st.)
-                                        </label>
-                                        <div class="checkbox-container">
-                                            <div class="radio">
-                                                <input name="dt_polio_booster_given" id="1" type="radio"
-                                                    @if ($helath_card_id != null) @if ($helath_card->dt_polio_booster_given == '1') checked='checked' @endif
-                                                    @endif>
-                                                <label for="1">Yes</label>
-                                            </div>
-                                            <div class="radio">
-                                                <input name="dt_polio_booster_given" id="0" type="radio"
-                                                    @if ($helath_card_id != null) @if ($helath_card->dt_polio_booster_given == '0') checked='checked' @endif
-                                                    @endif>
-                                                <label for="0">No</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label style="margin-left: 10px; font-size: 12px; font-weight:600">
-                                            Tetanus given on
-                                        </label>
-                                        <div class="checkbox-container">
-                                            @foreach ($tetanus_given_on as $index => $item)
-                                                <div class="checkbox">
-                                                    <input id="tetanus_given_on{{ $index }}" type="checkbox"
-                                                        name="tetanus_given_on[]" value="{{ $item }}"
-                                                        @if ($helath_card_id != null) @if (in_array($item, $tetanus_var)) checked @endif
-                                                        @endif>
-                                                    <label
-                                                        for="tetanus_given_on{{ $index }}">{{ ucfirst(str_replace('-', ' ', $item)) }}</label>
-                                                </div>
-                                            @endforeach
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row clearfix">
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label style="margin-left: 12px; font-size: 12px; font-weight:600">
-                                            Present complaint(if any)
-                                        </label>
-                                        <textarea class="form-control" type="text" name="present_complaint"> @if ($helath_card_id != null) {{ $helath_card->present_complaint }} @endif
-</textarea>
-
-                                    </div>
-                                </div>
-
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label style="margin-left: 10px; font-size: 12px; font-weight:600">
-                                            Current Medication(if any)
-                                        </label>
-                                        <textarea class="form-control" type="text" name="current_medication">  @if ($helath_card_id != null) {{ $helath_card->current_medication }} @endif
-</textarea>
-
-                                    </div>
-                                </div>
-                            </div>
-
-                            <br>
-
-                            <div class="row clearfix">
-
-                                <div class="col-sm-12">
-                                    <button type="submit" class="btn btn-primary btn-round"
-                                        id="submit_button">Update</button>
                                 </div>
                             </div>
                         </div>
-                    </form>
+
+                        <div class="row clearfix">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label style="margin-left: 10px; font-size: 12px; font-weight:600">
+                                        Remarks
+                                    </label>
+                                    <textarea class="form-control" type="text" name="remarks" placeholder="remarks">  @if ($helath_card_id != null) {{ $helath_card->remarks }} @endif </textarea>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row clearfix">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label style="margin-left: 10px; font-size: 12px; font-weight:600">
+                                        Any major illness or operation in past
+                                    </label>
+                                    <textarea class="form-control" type="text" name="past_medical_history">   @if ($helath_card_id != null){{ $helath_card->past_medical_history }} @endif
+                                        </textarea>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row clearfix">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label style="margin-left: 10px; font-size: 12px; font-weight:600">
+                                        Using any implant or accessories
+                                    </label>
+
+
+                                    <div class="checkbox-container">
+                                        @foreach ($implants as $index => $item)
+                                            <div class="checkbox">
+                                                <input id="any_implant_accessories{{ $index }}"
+                                                    type="checkbox" name="any_implant_accessories[]"
+                                                    value="{{ $item }}"
+                                                    @if ($helath_card_id != null) @if ($implants_var != null) @if (in_array($item, $implants_var)) checked @endif
+                                                    @endif
+                                        @endif>
+                                        <label
+                                            for="any_implant_accessories{{ $index }}">{{ ucfirst(str_replace('-', ' ', $item)) }}</label>
+                                    </div>
+                                    @endforeach
+                                </div>
+
+
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label style="margin-left: 10px; font-size: 12px; font-weight:600">Rt and Lt or
+                                    Lens
+                                    No
+                                </label>
+                                <input type="text" class="form-control" name="rt_and_lt"
+                                    placeholder="Rt or Lens No"
+                                    @if ($helath_card_id != null) value="{{ $helath_card->rt_and_lt }}" @endif>
+                            </div>
+                        </div>
+                </div>
+
+                <h2 style="color:black; font-size:15px"><strong>Vaccination Status</strong> </h2>
+
+
+                <div class="row clearfix">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label style="margin-left: 10px; font-size: 12px; font-weight:600">
+                                Hepatitis-B given on
+                            </label>
+
+                            <div class="checkbox-container">
+                                @foreach ($hepatitis as $index => $item)
+                                    <div class="checkbox">
+                                        <input id="hepatitis_given_on{{ $index }}" type="checkbox"
+                                            name="hepatitis_given_on[]" value="{{ $item }}"
+                                            @if ($helath_card_id != null) @if ($hepatitis_var != null)  @if (in_array($item, $hepatitis_var)) checked @endif
+                                            @endif
+                                @endif>
+                                <label
+                                    for="hepatitis_given_on{{ $index }}">{{ ucfirst(str_replace('-', ' ', $item)) }}</label>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label style="margin-left: 10px; font-size: 12px; font-weight:600">
+                            Typhoid given on Class
+                        </label>
+                        <div class="checkbox-container">
+
+                            @foreach ($typhoid_given_on as $index => $item)
+                                <div class="checkbox">
+                                    <input id="typhoid_given_on{{ $index }}" type="checkbox"
+                                        name="typhoid_given_on[]" value="{{ $item }}"
+                                        @if ($helath_card_id != null) @if ($typhoid_var != null) @if (in_array($item, $typhoid_var)) checked @endif
+                                        @endif
+                            @endif>
+                            <label
+                                for="typhoid_given_on{{ $index }}">{{ ucfirst(str_replace('-', ' ', $item)) }}</label>
+                        </div>
+                        @endforeach
+                    </div>
 
                 </div>
             </div>
         </div>
+
+        <div class="row clearfix">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label style="margin-left: 10px; font-size: 12px; font-weight:600"> D.T.& Polio
+                        Booster given on ( To be given at the age of 5 yrs or class 1st.)
+                    </label>
+                    <div class="checkbox-container">
+                        <div class="radio">
+                            <input name="dt_polio_booster_given" id="1" type="radio"
+                                @if ($helath_card_id != null) @if ($helath_card->dt_polio_booster_given == '1') checked='checked' @endif
+                                @endif>
+                            <label for="1">Yes</label>
+                        </div>
+                        <div class="radio">
+                            <input name="dt_polio_booster_given" id="0" type="radio"
+                                @if ($helath_card_id != null) @if ($helath_card->dt_polio_booster_given == '0') checked='checked' @endif
+                                @endif>
+                            <label for="0">No</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label style="margin-left: 10px; font-size: 12px; font-weight:600">
+                        Tetanus given on
+                    </label>
+                    <div class="checkbox-container">
+                        @foreach ($tetanus_given_on as $index => $item)
+                            <div class="checkbox">
+                                <input id="tetanus_given_on{{ $index }}" type="checkbox"
+                                    name="tetanus_given_on[]" value="{{ $item }}"
+                                    @if ($helath_card_id != null) @if ($tetanus_var != null)  @if (in_array($item, $tetanus_var)) checked @endif
+                                    @endif
+                        @endif>
+                        <label
+                            for="tetanus_given_on{{ $index }}">{{ ucfirst(str_replace('-', ' ', $item)) }}</label>
+                    </div>
+                    @endforeach
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row clearfix">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label style="margin-left: 12px; font-size: 12px; font-weight:600">
+                    Present complaint(if any)
+                </label>
+                <textarea class="form-control" type="text" name="present_complaint"> @if ($helath_card_id != null) {{ $helath_card->present_complaint }} @endif
+</textarea>
+
+            </div>
+        </div>
+
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label style="margin-left: 10px; font-size: 12px; font-weight:600">
+                    Current Medication(if any)
+                </label>
+                <textarea class="form-control" type="text" name="current_medication">  @if ($helath_card_id != null) {{ $helath_card->current_medication }} @endif
+</textarea>
+
+            </div>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="row clearfix">
+
+        <div class="col-sm-12">
+            <button type="submit" class="btn btn-primary btn-round" id="submit_button">Update</button>
+        </div>
+    </div>
+    </div>
+    </form>
+
+    </div>
+    </div>
+    </div>
     </div>
 
 </section>

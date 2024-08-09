@@ -71,6 +71,9 @@
                                                     @elseif ($item->relationship_id == 7)
                                                         <img src="{{ asset('Images/Patients/Profile_picture/' . $patient->profile_pic) }}"
                                                             alt="" style="width: 60px; height:60px">
+                                                    @elseif($item->parent_id != null)
+                                                        <img src="{{ asset('Images/Institution/Student/' . $item->image) }}"
+                                                            alt="" style="width: 60px; height:60px">
                                                     @else
                                                         <img src="{{ asset('Images/Patients/FamilyMembers/' . $item->image) }}"alt="Avatar"
                                                             style="width: 60px; height: 60px;">
@@ -80,6 +83,8 @@
                                                         <span class="name">{{ $item->name }} ({{ $age }})
                                                         </span>
                                                         <span class="relation"> {{ $item->member->relation }} </span>
+                                                        {{-- <span class="relation"> {{ $item->relationship_id }} </span> --}}
+
                                                         <br>
                                                         <span
                                                             class="blood_relation">{{ $item->blood_group->blood_types }}

@@ -200,7 +200,6 @@ class DoctorsController extends Controller
 
                     $user_id    = OtpHistory::where('otp', $otp)->pluck('user_id')->first();
                     $doctor_id  = Doctor::where('id', $user_id)->where('status', 1)->exists();
-
                     $id         = OtpHistory::where('otp', $otp)->pluck('id')->first();
 
                     if ($doctor_id == 1) {
@@ -264,7 +263,6 @@ class DoctorsController extends Controller
 
     public function DoctorRegister(Request $request)
     {
-
         $mobile = Doctor::where('mobile', $request->mobile)->where('status', 1)->exists();
         $type   = $request->type;
         $first_name = $request->first_name;
@@ -345,7 +343,7 @@ class DoctorsController extends Controller
             $doctor->first_name                                   = $request->first_name;
             $doctor->last_name                                    = $request->last_name ?? "";
             $doctor->mobile                                       = $request->mobile;
-            $doctor->age                                          = $request->age;
+            $doctor->dob                                          = $request->dob;
             $doctor->email                                        = $request->email;
             $doctor->gender                                       = $request->gender;
             $doctor->profile_pic                                  = $profile ?? "";
@@ -382,8 +380,6 @@ class DoctorsController extends Controller
 
     public function UpdateDoctorProfile(Request $request)
     {
-        dd($request->dob);
-        exit;
         if ($request->id != null) {
 
             $user   = Doctor::where('id', $request->id)->where('status', 1)->exists();
@@ -971,17 +967,40 @@ class DoctorsController extends Controller
 
     public function GetEmergencyCall(Request $request)
     {
-        // $emergency_calls = Invitation::where('emergency_call',1)->where('status',0)->select('id','user_type','patient_id','member_id','meeting_date','meeting_time','created_at','status')->get();
 
-        $emergency_calls = DB::table('invitations')
+        $calls = DB::table('invitations')
+        ->join('patients', 'invitations.patient_id', '=', 'patients.id')
+        ->join('members', 'invitations.member_id', '=', 'members.id')
+        ->leftJoin('meeting_details', 'invitations.id', '=', 'meeting_details.invitation_id')
+        ->select(
+            'invitations.id as invitation_id',
+            'invitations.patient_id as institute_id',
+            'invitations.member_id as patient_id',
+            'invitations.meeting_date',
+            'invitations.meeting_time',
+            'invitations.status',
+            'invitations.created_at',
+            'patients.name as institute_name',
+            'patients.mobile as institute_mobile',
+            'patients.profile_pic as institute_image',
+            'members.name as patient_name',
+            'members.dob as patient_dob',
+            'members.image as patient_image',
+            DB::raw('IFNULL(meeting_details.meeting_id, "") as meeting_id')
+        )
+        ->where('invitations.emergency_call', 1)
+        ->where('invitations.status', 3)
+        ->get();
+
+        $missed_calls = DB::table('invitations')
                         ->join('patients', 'invitations.patient_id', '=', 'patients.id')
                         ->join('members', 'invitations.member_id', '=', 'members.id')
-                        ->select('invitations.id as invitation_id', 'invitations.patient_id as institute_id','invitations.member_id as   patient_id_id','invitations.meeting_date','invitations.meeting_time','invitations.status','invitations.created_at','patients.name as institute_name', 'patients.mobile as institute_mobile','patients.profile_pic as institute_image', 'members.name as patient_name', 'members.age as patient_age','members.image as patient_image')
+                        ->select('invitations.id as invitation_id', 'invitations.patient_id as institute_id','invitations.member_id as   patient_id','invitations.meeting_date','invitations.meeting_time','invitations.status','invitations.created_at','patients.name as institute_name', 'patients.mobile as institute_mobile','patients.profile_pic as institute_image', 'members.name as patient_name', 'members.dob as patient_dob','members.image as patient_image')
                         ->where('invitations.emergency_call',1)
-                        ->where('invitations.status',3)
+                        ->where('invitations.status',4)
                         ->get();
 
-        return response()->json(['response' => 'success', 'result' => $emergency_calls ]);
+        return response()->json(['response' => 'success', 'calls' => $calls , 'missed_calls' => $missed_calls]);
 
     }
 
@@ -1015,7 +1034,7 @@ class DoctorsController extends Controller
                             $emergency_calls = DB::table('invitations')
                             ->join('patients', 'invitations.patient_id', '=', 'patients.id')
                             ->join('members', 'invitations.member_id', '=', 'members.id')
-                            ->select('invitations.id as invitation_id','invitations.doctor_id', 'invitations.patient_id as institute_id','invitations.member_id as   patient_id_id','invitations.meeting_date','invitations.meeting_time','invitations.status','invitations.created_at','patients.name as institute_name', 'patients.mobile as institute_mobile','patients.profile_pic as institute_image', 'members.name as patient_name', 'members.age as patient_age','members.image as patient_image')
+                            ->select('invitations.id as invitation_id','invitations.doctor_id', 'invitations.patient_id as institute_id','invitations.member_id as   patient_id_id','invitations.meeting_date','invitations.meeting_time','invitations.status','invitations.created_at','patients.name as institute_name', 'patients.mobile as institute_mobile','patients.profile_pic as institute_image', 'members.name as patient_name', 'members.dob as patient_dob','members.image as patient_image')
                             ->where('invitations.id',$invitation_id)
                             ->get();
 
@@ -1041,7 +1060,7 @@ class DoctorsController extends Controller
                     $emergency_calls = DB::table('invitations')
                                         ->join('patients', 'invitations.patient_id', '=', 'patients.id')
                                         ->join('members', 'invitations.member_id', '=', 'members.id')
-                                        ->select('invitations.id as invitation_id','invitations.doctor_id', 'invitations.patient_id as institute_id','invitations.member_id as   patient_id_id','invitations.meeting_date','invitations.meeting_time','invitations.status','invitations.created_at','patients.name as institute_name', 'patients.mobile as institute_mobile','patients.profile_pic as institute_image', 'members.name as patient_name', 'members.age as patient_age','members.image as patient_image')
+                                        ->select('invitations.id as invitation_id','invitations.doctor_id', 'invitations.patient_id as institute_id','invitations.member_id as   patient_id_id','invitations.meeting_date','invitations.meeting_time','invitations.status','invitations.created_at','patients.name as institute_name', 'patients.mobile as institute_mobile','patients.profile_pic as institute_image', 'members.name as patient_name', 'members.dob as patient_dob','members.image as patient_image')
                                         ->where('invitations.id',$invitation_id)
                                         ->get();
 
@@ -1174,19 +1193,40 @@ class DoctorsController extends Controller
         $doctor_id = $request->doctor_id;
         $date = Carbon::now()->format('Y-m-d');
 
+
         if ($doctor_id != null) {
-            $date = new DateTime('today');
 
-            $todays_appointments        = Invitation::where('doctor_id', $doctor_id)->where('meeting_date',$date)->where('status',0)->get();
-            $todays_appointment_count   = Invitation::where('doctor_id', $doctor_id)->where('meeting_date',$date)->where('status',0)->where('status',0)->count('id');
-            $upcoming_appointment_count = Invitation::where('doctor_id', $doctor_id)->where('meeting_date', '>' ,$date)->count('id');
+            $check_doctor = Doctor::where('id',$doctor_id)->where('is_verified',1)->exists();
 
-            $todays_appointment_count   = Invitation::where('doctor_id', $doctor_id)->where('meeting_date',$date)->where('status',0)->count('id');
-            $total_appointment_count   = Invitation::where('doctor_id', $doctor_id)->where('meeting_date', '>=' ,$date)->where('status', 0)->count('id');
-            $appointment_history_count   = Invitation::where('doctor_id', $doctor_id)->where('status', 2)->count('id');
+            if($check_doctor == 1){
 
+                $date = new DateTime('today');
 
-            return response()->json(['response' => 'success','todays_appointments' =>$todays_appointments, 'todays_appointment_count'=>$todays_appointment_count, 'upcoming_appointment_count' => $upcoming_appointment_count, 'total_appointment_count' => $total_appointment_count,'appointment_history_count' => $appointment_history_count]);
+                $todays_appointments        = Invitation::where('doctor_id', $doctor_id)->where('meeting_date',$date)->where('status',0)->get();
+                $todays_appointment_count   = Invitation::where('doctor_id', $doctor_id)->where('meeting_date',$date)->where('status',0)->where('status',0)->count('id');
+                $upcoming_appointment_count = Invitation::where('doctor_id', $doctor_id)->where('meeting_date', '>' ,$date)->count('id');
+
+                $todays_appointment_count   = Invitation::where('doctor_id', $doctor_id)->where('meeting_date',$date)->where('status',0)->count('id');
+                $total_appointment_count    = Invitation::where('doctor_id', $doctor_id)->where('meeting_date', '>=' ,$date)->where('status', 0)->count('id');
+                $appointment_history_count  = Invitation::where('doctor_id', $doctor_id)->where('status', 2)->count('id');
+
+                $check_emergency = Doctor::where('id',$doctor_id)->where('emergency',1)->exists();
+
+                if($check_emergency == 1){
+
+                    $pending_calls = Invitation::where('emergency_call',1)->where('status',3)->count('id');
+                    $missed_calls  = Invitation::where('emergency_call',1)->where('status',4)->count('id');
+
+                    return response()->json(['response' => 'success','todays_appointments' =>$todays_appointments, 'todays_appointment_count'=>$todays_appointment_count, 'upcoming_appointment_count' => $upcoming_appointment_count, 'total_appointment_count' => $total_appointment_count,'appointment_history_count' => $appointment_history_count, 'pending_calls' => $pending_calls,'missed_calls' => $missed_calls]);
+
+                }else {
+                    return response()->json(['response' => 'success','todays_appointments' =>$todays_appointments, 'todays_appointment_count'=>$todays_appointment_count, 'upcoming_appointment_count' => $upcoming_appointment_count, 'total_appointment_count' => $total_appointment_count,'appointment_history_count' => $appointment_history_count]);
+
+                }
+            } else {
+
+                return response()->json(['response' => 'failed', 'result' => 'user does nnt exist']);
+            }
 
         } else{
 
@@ -1296,7 +1336,7 @@ class DoctorsController extends Controller
 
     }
 
-    public function AddNotes(Request $request)
+    public function AddPrescription(Request $request)
     {
         $data = [
             'chief_complaints'    => $request->chief_complaints,
@@ -1313,6 +1353,8 @@ class DoctorsController extends Controller
         }));
 
         $meeting_id = $request->meeting_id;
+
+        $prescriptionARR = $request->prescriptions;
 
         if($meeting_id != null)
         {
@@ -1342,39 +1384,49 @@ class DoctorsController extends Controller
                         $meeting_info->created_at          = Carbon::now('Asia/Kolkata');
                         $meeting_info->save();
 
-                    } else {
+                    }
+
+                    else {
 
                      return response()->json(['response' => 'failed']);
 
                     }
-                } else {
-
-                    $meeting_info_id = MeetingInfo::where('meeting_id',$meeting_id)->pluck('id')->first();
-
-                    if($meeting_info_id == $request->meeting_info_id){
-
-                        MeetingInfo::findOrFail($meeting_info_id)->update([
-
-                            'chief_complaints'   => $request->chief_complaints?? "",
-                            'diagnosis'          => $request->diagnosis?? "",
-                            'points_from_history'=> $request->points_from_history?? "",
-                            'lab_findings'       => $request->lab_findings?? "",
-                            'investigations'     => $request->investigations?? "",
-                            'instructions'       => $request->instructions?? "",
-                            'notes'              => $request->notes?? "",
-
-                        ]);
-
-                    } else {
-
-                        return response()->json(['response' => 'failed','message' =>'please enter a valid id']);
-                    }
-
                 }
 
-                $meeting_info  = MeetingInfo::where('meeting_id',$meeting_id)->get();
+                $meeting_info_id  = MeetingInfo::where('meeting_id',$meeting_id)->pluck('id')->first();
+                $invitation_id    = MeetingInfo::where('meeting_id',$meeting_id)->pluck('invitation_id')->first();
 
-                return response()->json(['response' => 'success', 'meeting_info   '=>$meeting_info]);
+                if($meeting_info_id == 1){
+
+                    Invitation::where('id',$invitation_id)->update([
+
+                        'follow_up'  => $request->follow_up,
+
+                    ]);
+
+                    foreach ($prescriptionARR as $prescription) {
+
+                        if ($prescription['medicine_name'] != 0  && $prescription['drug_form'] != 0 && $prescription['strength'] != 0 && $prescription['duration'] != 0) {
+
+                                MeetingPrescription::insert([
+
+                                    'meeting_info_id'  => $meeting_info_id,
+                                    'medicine_name'    => $prescription['medicine_name'],
+                                    'drug_form'        => $prescription['drug_form'],
+                                    'strength'         => $prescription['strength'],
+                                    'duration'         => $prescription['duration'],
+                                ]);
+
+                        } else {
+                        return response()->json(['response' => 'failed', 'message' => 'please enter required fields']);
+                        }
+                    }
+                }
+
+                $meeting_information = MeetingInfo::where('meeting_id',$meeting_id)->get();
+                $prescriptions       = MeetingPrescription::where('meeting_info_id',$meeting_info_id)->get();
+
+                return response()->json(['response' => 'success', 'meeting_info'=>$meeting_information, 'prescriptions' => $prescriptions ]);
 
             } else {
 
@@ -1384,55 +1436,6 @@ class DoctorsController extends Controller
         } else {
 
             return response()->json(['response' => 'failed', 'message' => 'please enter required fields']);
-        }
-
-    }
-
-
-    public function AddPrescription(Request $request)
-    {
-        $meeting_info_id = $request->meeting_info_id;
-        $check_id        = MeetingInfo::where('id',$meeting_info_id)->exists();
-
-        $prescription_data = [
-
-            'meeting_info_id'=> $request->meeting_info_id,
-            'medicine_name'  => $request->medicine_name,
-            'drug_form'      => $request->drug_form,
-            'strength'       => $request->strength,
-            'duration'       => $request->duration,
-        ];
-
-
-        $check_prescription_data = empty(array_filter($prescription_data, function ($value) {
-            return !empty($value);
-        }));
-
-        if (!$check_prescription_data) {
-
-            if($check_id == 1){
-
-                MeetingPrescription::insert([
-
-                    'meeting_info_id' => $meeting_info_id,
-                    'medicine_name'   => $request->medicine_name,
-                    'drug_form'       => $request->drug_form,
-                    'strength'        => $request->strength,
-                    'duration'        => $request->duration,
-
-                ]);
-
-                $prescriptions = MeetingPrescription::where('meeting_info_id',$meeting_info_id)->get();
-
-                return response()->json(['response' => 'success','prescriptions' => $prescriptions]);
-
-            } else {
-                return response()->json(['response' => 'failed','message' =>'id does not exist']);
-            }
-        } else {
-
-             return response()->json(['response' => 'failed', 'message' => 'please enter required fields']);
-
         }
 
     }
@@ -1457,96 +1460,32 @@ class DoctorsController extends Controller
 
     }
 
-    public function ViewNotes(Request $request)
+    public function ViewPrescription(Request $request)
     {
         $meeting_id = $request->meeting_id;
 
-        if($meeting_id != null)
-        {
+        if($meeting_id != null){
+
             $check_id = MeetingInfo::where('meeting_id',$meeting_id)->exists();
 
             if($check_id == 1){
 
-                $meeting_info_id = MeetingInfo::where('meeting_id',$meeting_id)->pluck('id')->first();
+                $meeting_info_id     = MeetingInfo::where('meeting_id',$meeting_id)->pluck('id')->first();
+                $meeting_information = MeetingInfo::where('id',$meeting_info_id)->get();
+                $prescriptions       = MeetingPrescription::where('meeting_info_id',$meeting_info_id)->get();
 
-                $notes = MeetingNotes::where('meeting_info_id',$meeting_info_id)->pluck('notes');
+                return response()->json(['response' => 'success','meeting_information' => $meeting_information, 'prescriptions' => $prescriptions]);
 
-                return response()->json(['response' => 'success','result' => $notes]);
-
-            } else {
-
+            }else {
                 return response()->json(['response' => 'failed','message' =>'meeting_id does not exist']);
             }
 
-        } else {
+        }  else {
 
-            return response()->json(['response' => 'failed', 'message' => 'please enter required fields']);
+            return response()->json(['response' => 'failed', 'message' => 'please enter meeting_id']);
         }
+
     }
-
-    // public function AddPrescription(Request $request)
-    // {
-    //     $meeting_id    = $request->meeting_id;
-    //     $prescriptions = $request->prescriptions;
-    //     $title         = $request->title;
-
-    //     if($meeting_id != null && $title != null && $prescriptions != null )
-    //     {
-    //         $check_id = MeetingDetails::where('id',$meeting_id)->exists();
-
-    //         if($check_id == 1){
-
-    //             $invitation_id = MeetingDetails::where('id',$meeting_id)->pluck('invitation_id')->first();
-
-    //             MeetingPrescription::insert([
-
-    //                 'meeting_id'    => $meeting_id,
-    //                 'invitation_id' => $invitation_id,
-    //                 'title'         => $title,
-    //                 'prescriptions' => $prescriptions,
-    //                 'status'        => 1,
-    //                 'created_at'    => Carbon::now('Asia/Kolkata'),
-    //             ]);
-
-    //             $meeting_prescriptions = MeetingPrescription::where('meeting_id',$meeting_id)->orderBy('id','desc')->get();
-
-    //             return response()->json(['response' => 'success', 'result' => $meeting_prescriptions]);
-
-    //         } else {
-
-    //             return response()->json(['response' => 'failed','message' =>'meeting_id does not exist']);
-    //         }
-
-    //     } else {
-    //         return response()->json(['response' => 'failed', 'message' => 'please enter required fields']);
-    //     }
-
-    // }
-
-    // public function ViewPrescription(Request $request)
-    // {
-    //     $meeting_id = $request->meeting_id;
-
-    //     if($meeting_id != null)
-    //     {
-    //         $check_id = MeetingPrescription::where('id',$meeting_id)->exists();
-
-    //         if($check_id == 1){
-
-    //             $prescription = MeetingPrescription::where('meeting_id',$meeting_id)->orderBy('id','desc')->get();
-
-    //             return response()->json(['response' => 'success','result' => $prescription]);
-
-    //         } else {
-
-    //             return response()->json(['response' => 'failed','message' =>'meeting_id does not exist']);
-    //         }
-
-    //     } else {
-
-    //         return response()->json(['response' => 'failed', 'message' => 'please enter required fields']);
-    //     }
-    // }
 
     public function FileUpload(Request $request)
     {
@@ -1636,7 +1575,6 @@ class DoctorsController extends Controller
         $user_id   = $request->user_id;
         $user_type = $request->user_type;
 
-
         if($user_id != null && $user_type != null){
 
             if($user_type == 0){
@@ -1652,7 +1590,7 @@ class DoctorsController extends Controller
                 $meeting_history = DB::table('invitations')
                                  ->join('patients', 'invitations.patient_id', '=', 'patients.id')
                                  ->join('members', 'invitations.member_id', '=', 'members.id')
-                                 ->select('invitations.id as invitation_id','invitations.user_type','invitations.meeting_date','invitations.meeting_time','invitations.patient_id','invitations.member_id','invitations.doctor_id','members.name','members.age','members.gender','members.image','patients.profile_pic','patients.user_type')
+                                 ->select('invitations.id as invitation_id','invitations.user_type','invitations.meeting_date','invitations.meeting_time','invitations.patient_id','invitations.member_id','invitations.doctor_id','members.name','members.dob','members.gender','members.image','patients.profile_pic','patients.user_type')
                                  ->where('invitations.doctor_id','=',$user_id)
                                  ->where('invitations.status','=',2)
                                  ->get();
@@ -1663,7 +1601,7 @@ class DoctorsController extends Controller
                                 ->join('patients', 'invitations.patient_id', '=', 'patients.id')
                                 ->join('doctors', 'doctors.id', '=', 'invitations.doctor_id')
                                 ->join('members', 'invitations.member_id', '=', 'members.id')
-                                ->select('invitations.id as invitation_id','invitations.user_type','invitations.meeting_date','invitations.meeting_time','invitations.patient_id','invitations.member_id','invitations.doctor_id','members.name','members.age','members.gender','members.image','patients.profile_pic','patients.user_type','doctors.first_name','doctors.last_name','doctors.profile_pic as doctor_image','doctors.department_name')
+                                ->select('invitations.id as invitation_id','invitations.user_type','invitations.meeting_date','invitations.meeting_time','invitations.patient_id','invitations.member_id','invitations.doctor_id','members.name','members.dob','members.gender','members.image','patients.profile_pic','patients.user_type','doctors.first_name','doctors.last_name','doctors.profile_pic as doctor_image','doctors.department_name')
                                 ->where('invitations.patient_id','=',$user_id)
                                 ->where('invitations.status','=',2)
                                 ->get();
@@ -1742,29 +1680,36 @@ class DoctorsController extends Controller
 
         if($invitation_id != null){
 
-            $meeting_details = Invitation::where('id',$invitation_id)->get();
+            $check_invitation = Invitation::where('id',$invitation_id)->exists();
 
-            foreach($meeting_details as $item){
+            if($check_invitation == 1){
 
-                $doctor_id  = $item->doctor_id;
-                $patient_id = $item->patient_id;
-                $member_id  = $item->member_id;
+                $meeting_details = Invitation::where('id',$invitation_id)->get();
 
+                foreach($meeting_details as $item){
+
+                    $doctor_id  = $item->doctor_id;
+                    $patient_id = $item->patient_id;
+                    $member_id  = $item->member_id;
+
+                }
+
+                $meeting_info_id = MeetingInfo::where('invitation_id',$invitation_id)->pluck('id')->first();
+
+                $doctor  = Doctor::where('id',$doctor_id)->get();
+                $patient = Patient::where('id',$patient_id)->get();
+                $member  = Member::where('id',$member_id)->get();
+                $invitation = Invitation::where('id', $invitation_id)->get();
+                $meeting_info = MeetingInfo::where('invitation_id', $invitation_id)->get();
+
+
+                $data = ['doctor'=> $doctor, 'patient'=> $patient, 'member'=> $member, 'invitation' =>$invitation, 'meeting_info'=>$meeting_info];
+                $pdf = PDF::loadView('pdf.prescription', $data);
+                return $pdf->download('prescription.pdf');
+            } else {
+
+                 return response()->json(['response' => 'failed', 'message' => 'Invitation does not exist']);
             }
-
-            $meeting_info_id = MeetingInfo::where('invitation_id',$invitation_id)->pluck('id')->first();
-            $notes           = MeetingNotes::where('meeting_info_id',$meeting_info_id)->pluck('notes');
-
-            $doctor  = Doctor::where('id',$doctor_id)->get();
-            $patient = Patient::where('id',$patient_id)->get();
-            $member  = Member::where('id',$member_id)->get();
-            $invitation = Invitation::where('id', $invitation_id)->get();
-            $meeting_info = MeetingInfo::where('invitation_id', $invitation_id)->get();
-
-
-            $data = ['notes'=> $notes, 'doctor'=> $doctor, 'patient'=> $patient, 'member'=> $member, 'invitation' =>$invitation, 'meeting_info'=>$meeting_info];
-            $pdf = PDF::loadView('pdf.prescription', $data);
-            return $pdf->download('prescription.pdf');
         }else {
 
             return response()->json(['response' => 'failed']);
@@ -1889,4 +1834,14 @@ class DoctorsController extends Controller
             return response()->json(['response' => 'failed', 'message' => 'please enter required fields']);
         }
     }
+
+    public function GetAvailableDoctors(Request $request)
+    {
+        $doctors = Doctor::where('status', 1)->where('is_verified',1)->where('emergency',1)->get();
+
+        return response()->json(['response' => 'success', 'result' => $doctors]);
+
+    }
+
+
 }

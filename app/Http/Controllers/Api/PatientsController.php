@@ -2,20 +2,21 @@
 
 namespace App\Http\Controllers\Api;
 
+use Helper;
 use DateTime;
+use App\Models\Member;
 use App\Models\Patient;
 use App\Models\Student;
 use App\Models\BloodGroup;
 use App\Models\Invitation;
-use App\Models\Member;
 use Illuminate\Http\Request;
 use App\Models\MeetingDetails;
+use App\Models\MembersMapping;
 use App\Models\RegistrationId;
 use Illuminate\Support\Carbon;
 use App\Models\PatientOtpHistory;
 use App\Http\Controllers\Controller;
 use App\Models\FamilyMemberRelation;
-use Helper;
 
 
 class PatientsController extends Controller
@@ -28,7 +29,7 @@ class PatientsController extends Controller
 
     public function PatientRegister(Request $request)
     {
-         $mobile = Patient::where('mobile', $request->mobile)->where('status','<>', 2)->exists();
+         $mobile       = Patient::where('mobile', $request->mobile)->where('status','<>', 2)->exists();
 
             if($mobile == 0){
 
@@ -47,11 +48,13 @@ class PatientsController extends Controller
                 $patient->user_type      = 1;
                 $patient->name           = $request->name;
                 $patient->dob            = $request->dob ?? "";
-                // $patient->age            = $age ?? 0;
                 $patient->gender         = $request->gender ?? 0;
                 $patient->blood_group_id = $request->blood_group_id;
                 $patient->mobile         = $request->mobile;
-                $patient->location       = $request->location ?? "";
+                $patient->address        = $request->address ?? "";
+                $patient->height         = $request->height;
+                $patient->weight         = $request->weight;
+                $patient->lmp            = $request->lmp;
                 $patient->email          = $request->email ?? "";
                 $patient->profile_pic    = $pic ?? "";
                 $patient->save();
@@ -74,15 +77,54 @@ class PatientsController extends Controller
                     'patient_id'      => $patient->id,
                     'name'            => $request->name,
                     'dob'             => $request->dob ?? "",
-                    // 'age'             => $age,
                     'gender'          => $request->gender ?? "",
                     'relationship_id' => 7,
                     'blood_group_id'  => $request->blood_group_id,
                     'image'           => $pic ?? "",
+                    'address'         => $request->address ?? "",
+                    'height'          => $request->height,
+                    'weight'          => $request->weight,
+                    'lmp'             => $request->lmp,
                     'status'          => 1,
-                    'unique_id'     => $unique_id,
+                    'unique_id'       => $unique_id,
 
                 ]);
+
+                $check_mobile = Member::where('mobile',$request->mobile)->exists();
+
+                if($check_mobile == 1) {
+
+                   $student_id   = Member::where('mobile',$request->mobile)->pluck('id')->first();
+                   $institute_id = Member::where('mobile',$request->mobile)->pluck('patient_id')->first();
+                   $gender       = Member::where('mobile',$request->mobile)->pluck('gender')->first();
+                   if($gender == 0){
+                         $relationship_id = 3;
+                    }else {
+                        $relationship_id = 4;
+                    }
+
+                   $ParentIdArray  = [];
+                   array_push ($ParentIdArray, $patient->id);
+                   array_push($ParentIdArray, $institute_id);
+
+                   foreach($ParentIdArray as $item){
+
+                       MembersMapping::insert([
+
+                           'patient_id'    => $item,
+                           'member_id'     => $student_id,
+                           'status'        => 1,
+                       ]);
+                   }
+
+                   Member::where('id',$student_id)->update([
+
+                        'parent_id'       => $patient->id,
+                        'relationship_id' => $relationship_id,
+
+                   ]);
+
+                }
 
                 return response()->json(['response' => 'success', 'result'=> $patient]);
 
@@ -127,10 +169,12 @@ class PatientsController extends Controller
 
                         'name'           => $request->name ?? $user->name,
                         'dob'            => $request->dob ?? $user->dob,
-                        // 'age'            => $age ?? $user->age,
                         'gender'         => $request->gender ?? $user->gender,
                         'mobile'         => $request->mobile ?? $user->mobile,
-                        'location'       => $request->location ?? $user->location,
+                        'address'        => $request->address ?? $user->address,
+                        'height'         => $request->height ?? $user->height,
+                        'weight'         => $request->weight ?? $user->weight,
+                        'lmp'            => $request->lmp ?? $user->lmp,
                         'email'          => $request->email ?? $user->email,
                         'blood_group_id' => $request->blood_group_id ?? $user->blood_group_id,
                         'profile_pic'    => $pic ?? $user->profile_pic,
@@ -141,17 +185,19 @@ class PatientsController extends Controller
 
                         'name'            => $request->name ?? $user->name,
                         'dob'             => $request->dob ?? $user->dob,
-                        // 'age'             => $age ?? $user->age,
                         'gender'          => $request->gender ?? $user->gender,
                         'relationship_id' => 7,
                         'blood_group_id'  => $request->blood_group_id,
                         'image'           => $pic ?? $user->profile_pic,
-
+                        'address'         => $request->address ?? $user->address,
+                        'height'          => $request->height ?? $user->height,
+                        'weight'          => $request->weight ?? $user->weight,
+                        'lmp'             => $request->lmp ?? $user->lmp,
 
                     ]);
 
 
-                    $updated_info = Patient::where('id',$request->id)->select('name','dob','mobile','location','email','profile_pic','blood_group_id')->get();
+                    $updated_info = Patient::where('id',$request->id)->select('name','dob','mobile','address','email','profile_pic','blood_group_id','height','weight','lmp')->get();
 
                     return response()->json(['response' => 'success', 'result'=> $updated_info]);
 
@@ -179,7 +225,19 @@ class PatientsController extends Controller
             $user = Patient::where('id', $request->id)->where('status','<>',2)->exists();
             if($user == 1) {
 
-                $user  =  Patient::findOrFail($request->id);
+                // $user  =  Patient::findOrFail($request->id);
+
+                $userCollection =  Patient::where('id',$request->id)->get()
+                            ->map(function ($user) {
+                                $dob = $user->dob;
+                                $age = Carbon::parse($dob)->age;
+                                $user->age = $age;
+                                return $user;
+                            });
+
+            if ($userCollection->isNotEmpty()) {
+                $user = $userCollection->first();
+            }
 
                 return response()->json(['response' => 'true', 'result'=> $user]);
 
@@ -262,6 +320,10 @@ class PatientsController extends Controller
                 $family_member->name            = $name;
                 $family_member->dob             = $dob;
                 $family_member->gender          = $gender;
+                $family_member->address         = $request->address ?? "";
+                $family_member->height          = $request->height ?? 0;
+                $family_member->weight          = $request->weight ?? 0;
+                $family_member->lmp             = $request->lmp;
                 $family_member->relationship_id = $relationship_id;
                 $family_member->blood_group_id  = $blood_group_id;
                 $family_member->image           = $profile ?? "";
@@ -302,7 +364,14 @@ class PatientsController extends Controller
             $patient_exists = Patient::where('id', $patient_id)->where('status','<>',2)->exists();
             if($patient_exists == 1){
 
-                $family_members = Member::where('patient_id',$patient_id)->where('status', '<>', 2)->get();
+            $family_members = Member::where('patient_id',$patient_id)->where('status', '<>', 2)->get()
+                            ->map(function ($family_members) {
+                                $dob = $family_members->dob;
+                                $age = Carbon::parse($dob)->age;
+                                $family_members->age = $age;
+
+                                return $family_members;
+                            });
 
                     return response()->json(['response' => 'success', 'result' => $family_members]);
 
@@ -353,14 +422,17 @@ class PatientsController extends Controller
 
                 Member::findOrFail($request->id)->update([
 
-                    'patient_id'      => $request->patient_id ?? $user->patient_id,
+                    'patient_id'      => $user->patient_id,
                     'name'            => $request->name ?? $user->name,
                     'dob'             => $request->dob?? $user->dob,
                     'gender'          => $request->gender ?? $user->gender,
                     'relationship_id' => $request->relationship_id ?? $user->relationship_id,
                     'blood_group_id'  => $request->blood_group_id ?? $user->blood_group_id,
                     'image'           => $profile ?? $user->image,
-
+                    'address'         => $request->address ?? $user->address,
+                    'height'          => $request->height ?? $user->height,
+                    'weight'          => $request->weight ?? $user->weight,
+                    'lmp'             => $request->lmp ?? $user->lmp,
 
                 ]);
 
@@ -386,6 +458,8 @@ class PatientsController extends Controller
         $id            = $request->id;
         $family_member = Member::where('id', $id)->where('status', '<>', 2)->exists();
 
+        $map_exists    = Member::where('id',$id)->where('parent_id','<>',0)->exists();
+
         if ($id != null) {
 
             if ($family_member == 1) {
@@ -394,6 +468,18 @@ class PatientsController extends Controller
 
                     'status' => 2,
                 ]);
+
+                if($map_exists == 1){
+
+                    $parent_id    = Member::where('id',$id)->pluck('parent_id')->first();
+
+                    MembersMapping::findOrFail($parent_id)->update([
+
+                        'status'    => 2,
+
+                    ]);
+                }
+
 
                 return response()->json(['response' => 'success']);
             } else {
@@ -494,9 +580,6 @@ class PatientsController extends Controller
             return response()->json(['response' => 'failed', 'result' => 'please enter patient id']);
         }
 
-
     }
-
-
 
 }

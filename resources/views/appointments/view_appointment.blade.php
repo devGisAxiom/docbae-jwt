@@ -63,6 +63,11 @@
                 ->pluck('grade')
                 ->first();
         }
+
+        use Carbon\Carbon;
+        $dateOfBirth = Carbon::parse($appointment->members->dob);
+        $age = $dateOfBirth->age;
+
     @endphp
     <div class="row clearfix">
         <div class="col-sm-12">
@@ -102,7 +107,7 @@
                                 </tr>
                                 <tr>
                                     <th>AGE</th>
-                                    <td>{{ $appointment->members->age }}</td>
+                                    <td>{{ $age }}</td>
 
                                 </tr>
                                 <tr>

@@ -39,7 +39,7 @@
                                         <tr>
                                             <th>Start Date</th>
                                             <th>End Date </th>
-                                            <th>Fund Released On </th>
+                                            <th>Filter</th>
 
                                         </tr>
                                     </thead>

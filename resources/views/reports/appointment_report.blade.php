@@ -203,6 +203,7 @@
 
 @php
     $invitations = App\Models\Invitation::with('doctor')
+        ->where('doctor_id', '<>', 0)
         ->where('fund_released', 0)
         ->where('status', 2)
         ->get()
@@ -244,13 +245,32 @@
                                         $doctors_fee += $value->doctors_fee;
                                     }
 
+                                    $profile_pic = App\Models\Doctor::where('id', $item->doctor_id)
+                                        ->pluck('profile_pic')
+                                        ->first();
+
+                                    $first_name = App\Models\Doctor::where('id', $item->doctor_id)
+                                        ->pluck('first_name')
+                                        ->first();
+                                    $last_name = App\Models\Doctor::where('id', $item->doctor_id)
+                                        ->pluck('last_name')
+                                        ->first();
+
                                 @endphp
                                 <tr>
                                     <td>{{ $i++ }}</td>
-                                    <td><img src="{{ asset('Images/Doctor/Profile_picture/' . $item->doctor->profile_pic) }}"
-                                            alt="Avatar" class="rounded-circle" style="width: 35px; height:35px">
+                                    <td>
+                                        @if ($profile_pic != null)
+                                            <img src="{{ asset('Images/Doctor/Profile_picture/' . $profile_pic) }}"
+                                                alt="Avatar" class="rounded-circle" style="width: 35px; height:35px">
+                                        @else
+                                            <img src="{{ asset('assets/images/patients/user.jpg') }}"
+                                                style="width: 40px; height: 40px" alt="Avatar"
+                                                class="rounded-circle" />
+                                        @endif
+
                                     </td>
-                                    <td>{{ $item->doctor->first_name }} {{ $item->doctor->last_name }}</td>
+                                    <td>{{ $first_name }} {{ $last_name }}</td>
                                     {{-- <td>
                                         @if ($item->released_date != null)
                                             {{ $item->released_date }}
