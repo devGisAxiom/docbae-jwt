@@ -136,7 +136,8 @@ Route::post('/patientsDashboard', [PatientsController::class,'PatientsDashboard'
 // PATIENT ACTIVE STATUS
 Route::post('/patientStatus', [PatientsController::class,'PatientStatus']);
 
-
+//GET PATIENT FOLLOWPS
+Route::get('/pendingFollowup', [PatientsController::class,'PendingFollowup']);
 
 // Add family members
 Route::post('/addFamilyMembers', [PatientsController::class,'AddFamilyMembers']);

@@ -31,7 +31,7 @@ class PatientsController extends Controller
     {
          $mobile       = Patient::where('mobile', $request->mobile)->where('status','<>', 2)->exists();
 
-            if($mobile == 0){
+            if($mobile){
 
                 if ($request->file('profile_pic') != null) {
                     $file       = $request->file('profile_pic');
@@ -224,8 +224,6 @@ class PatientsController extends Controller
 
             $user = Patient::where('id', $request->id)->where('status','<>',2)->exists();
             if($user == 1) {
-
-                // $user  =  Patient::findOrFail($request->id);
 
                 $userCollection =  Patient::where('id',$request->id)->get()
                             ->map(function ($user) {
@@ -580,6 +578,31 @@ class PatientsController extends Controller
             return response()->json(['response' => 'failed', 'result' => 'please enter patient id']);
         }
 
+    }
+
+    public function PendingFollowup(Request $request)
+    {
+        $dateTime    = Carbon::now('Asia/Kolkata');
+        $date        = $dateTime->toDateString();
+        $patient_id  = $request->patient_id;
+        if ($patient_id != null) {
+
+            $check_invitation = Invitation::where('patient_id',$patient_id)->where('status',2)->exists();
+
+            if($check_invitation == 1){
+
+                $patients_followup = Invitation::where('patient_id',$patient_id)->where('follow_up',1)->where('follow_up_date','>=',$date)->select('id','user_type','patient_id','member_id','doctor_id','meeting_date','meeting_time','follow_up','follow_up_date')->get();
+
+                return response()->json(['response' => 'success','result'=>$patients_followup]);
+            }else {
+
+                 return response()->json(['response' => 'failed', 'result' => 'No appointments were found for this patient']);
+            }
+
+        } else{
+
+            return response()->json(['response' => 'failed', 'result' => 'please enter patient id']);
+        }
     }
 
 }

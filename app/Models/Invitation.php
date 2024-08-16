@@ -30,6 +30,7 @@ class Invitation extends Model
         'released_date',
         'emergency_call',
         'follow_up',
+        'follow_up_date',
 
     ];
 

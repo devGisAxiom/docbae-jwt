@@ -610,28 +610,25 @@ class DoctorsController extends Controller
 
     public function SearchDoctor(Request $request)
     {
+
         $search_text      = $request->input("search_text");
         $department_name  = $request->input("department_name");
 
         if ($search_text) {
 
-            if($department_name == null){
+            // if($department_name == null){
 
                 $result = Doctor::where('status', 1)
                     ->where('is_verified', 1)
-                    ->where('first_name', 'like', '%' . $search_text . '%')
-                    // ->orWhere('last_name', 'like', '%' . $search_text . '%')
-                    ->orWhere('mobile', 'like', '%' . $search_text . '%')
-                    // ->get();
-                    ->paginate(5);
-                } else {
-                    $result = Doctor::where('status', 1)
-                    ->where('is_verified', 1)
-                    ->where('department_name', $department_name)
-                    ->where('first_name', 'like', '%' . $search_text . '%')
-                    ->orWhere('mobile', 'like', '%' . $search_text . '%')
-                    ->paginate(5);
-                }
+                    ->whereRaw('MATCH(first_name,last_name, mobile) AGAINST(? IN BOOLEAN MODE)', [$search_text])
+                    ->get();
+                // } else {
+                //     $result = Doctor::where('status', 1)
+                //     ->where('is_verified', 1)
+                //     ->where('department_name', $department_name)
+                //     ->whereRaw('MATCH(first_name,last_name, mobile) AGAINST(? IN BOOLEAN MODE)', [$search_text])
+                //     ->get();
+                // }
 
             if (!$result->isEmpty()) {
                 return response()->json(['response' => 'success', 'result' => $result]);
@@ -782,6 +779,8 @@ class DoctorsController extends Controller
         $user_type        = $request->user_type;
         $transaction_id   = $request->transaction_id;
         $available_time   = $request->available_time;
+        $follow_up_id     = $request->follow_up_id;
+        $payment          = $request->payment;
 
 
         if($doctor_id != null && $patient_id != null && $meeting_date != null && $meeting_time != null && $available_time != null)
@@ -873,27 +872,80 @@ class DoctorsController extends Controller
 
                         }
 
-                        if($check_availability == 0){
+                        // followups
+                    if($payment == null){
 
-                            $invitation                       = new Invitation();
-                            $invitation->user_type             = $user_type;
-                            $invitation->patient_id            = $patient_id;
-                            $invitation->member_id             = $var;
-                            $invitation->doctor_id             = $doctor_id;
-                            $invitation->meeting_date          = $meeting_date;
-                            $invitation->meeting_time          = $meeting_time;
-                            $invitation->available_time        = $available_time;
-                            $invitation->transaction_id        = $transaction_id ?? 0;
-                            $invitation->consultation_fee      = $fee ?? 0;
-                            $invitation->commission_percentage = $commission_percentage ?? 0;
-                            $invitation->commission_amount     = $amount ?? 0;
-                            $invitation->doctors_fee           = $doctors_fee ?? 0;
-                            $invitation->created_at            = Carbon::now('Asia/Kolkata');
-                            $invitation->save();
+                        $doctors_followup_days = Doctor::where('id',$doctor_id)->where('followup_days','<>',0)->exists();
 
-                            $email_id     = Doctor::where('id',$doctor_id)->pluck('email')->first();
+                        if($doctors_followup_days == 1){
+                            $followup_days = Doctor::where('id',$doctor_id)->pluck('followup_days')->first();
+                        }else {
+                            $followup_days = Settings::pluck('followup_days')->first();
+                        }
 
-                            $invitation_id = $invitation->id;
+                        if($follow_up_id != null){
+
+                            $last_meeting_date = Invitation::where('id',$follow_up_id)->orderBy('id','desc')->pluck('meeting_date')->first();
+
+                        }else {
+
+                            $last_meeting_date = Invitation::where('patient_id',$patient_id)->orderBy('id','desc')->pluck('meeting_date')->first();
+
+                        }
+                        $date1 = Carbon::createFromFormat('Y-m-d', $last_meeting_date);
+                        $date2 = Carbon::createFromFormat('Y-m-d', $meeting_date);
+
+                        $diffInDays = $date1->diffInDays($date2);
+
+                        if($diffInDays <= $followup_days){
+
+                            $free_follow_up = 'true';
+                        }else {
+                            $free_follow_up = 'false';
+                        }
+
+                        return response()->json(['free_follow_up' => $free_follow_up]);
+                        // end followup
+
+                     }else {
+
+                        if($check_availability == 0 ){
+
+                            if($payment == 0){
+
+                                $fee                   = 0;
+                                $commission_percentage = 0;
+                                $amount                = 0;
+                                $doctors_fee           = 0;
+                            }
+
+                                $invitation                       = new Invitation();
+                                $invitation->user_type             = $user_type;
+                                $invitation->patient_id            = $patient_id;
+                                $invitation->member_id             = $var;
+                                $invitation->doctor_id             = $doctor_id;
+                                $invitation->meeting_date          = $meeting_date;
+                                $invitation->meeting_time          = $meeting_time;
+                                $invitation->available_time        = $available_time;
+                                $invitation->transaction_id        = $transaction_id ?? 0;
+                                $invitation->consultation_fee      = $fee ?? 0;
+                                $invitation->commission_percentage = $commission_percentage ?? 0;
+                                $invitation->commission_amount     = $amount ?? 0;
+                                $invitation->doctors_fee           = $doctors_fee ?? 0;
+                                $invitation->created_at            = Carbon::now('Asia/Kolkata');
+                                $invitation->save();
+
+                                $email_id     = Doctor::where('id',$doctor_id)->pluck('email')->first();
+
+                                $invitation_id = $invitation->id;
+
+                                if($follow_up_id != null){
+
+                                    Invitation::where('id',$follow_up_id)->update([
+
+                                        'follow_up' => 2,
+                                    ]);
+                                }
 
                             // Mail::to($email_id)->send(new AppointmentMail($invitation_id));
 
@@ -903,6 +955,8 @@ class DoctorsController extends Controller
 
                             return response()->json(['schedule_exist' => 'true',  'message' => "Slot is not available"]);
                         }
+                     }
+
 
                     }
                 } else {
@@ -1506,7 +1560,8 @@ class DoctorsController extends Controller
 
                     Invitation::where('id',$invitation_id)->update([
 
-                        'follow_up'  => $request->follow_up,
+                        'follow_up'       => $request->follow_up,
+                        'follow_up_date'  => $request->follow_up_date,
 
                     ]);
                 //  }
