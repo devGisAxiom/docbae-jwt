@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Member extends Model
 {
@@ -55,4 +56,10 @@ class Member extends Model
     	return $this->belongsTo(Patient::class,'patient_id','id');
     }
 
+    protected $appends = ['age'];
+
+    public function getAgeAttribute()
+    {
+        return Carbon::parse($this->dob)->age;
+    }
 }

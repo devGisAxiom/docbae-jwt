@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Helper;
 use DateTime;
 use Dompdf\Dompdf;
 use App\Models\Doctor;
@@ -34,7 +35,6 @@ use App\Models\MeetingPrescription;
 use App\Http\Controllers\Controller;
 use App\Models\ReassignedInvitation;
 use Illuminate\Support\Facades\Mail;
-use Helper;
 
 
 
@@ -611,6 +611,32 @@ class DoctorsController extends Controller
     public function SearchDoctor(Request $request)
     {
 
+        // $search_text = $request->input("search_text");
+        // $department_name = $request->input("department_name");
+
+        // if ($search_text) {
+
+        //     $query = Doctor::where('status', 1)
+        //         ->where('is_verified', 1);
+
+        //     if ($department_name) {
+        //         $query->where('department_name', $department_name);
+        //     }
+
+        //     $result = $query->whereRaw(
+        //         "MATCH(first_name, last_name, mobile) AGAINST(?)",
+        //         [$search_text]
+        //     )->paginate(5);
+
+        //     if (!$result->isEmpty()) {
+        //         return response()->json(['response' => 'success', 'result' => $result]);
+        //     } else {
+        //         return response()->json(['response' => 'failed', 'message' => 'No user found']);
+        //     }
+        // } else {
+        //     return response()->json(['response' => 'failed', 'message' => "please enter text"]);
+        // }
+
         $search_text      = $request->input("search_text");
         $department_name  = $request->input("department_name");
 
@@ -742,8 +768,10 @@ class DoctorsController extends Controller
 
     public function DeleteDoctorSchedules(Request $request)
     {
-        $schedule_id       = $request->schedule_id;
-        $DoctorSchedules = DoctorSchedules::where('id', $schedule_id)->where('status', '<>', 2)->exists();
+        $schedule_id  = $request->schedule_id;
+        $doctor_id    = $request->doctor_id;
+
+        $DoctorSchedules = DoctorSchedules::where('id', $schedule_id)->where('doctor_id', $doctor_id)->where('status', '<>', 2)->exists();
 
         if ($schedule_id != null) {
 
@@ -756,9 +784,9 @@ class DoctorsController extends Controller
 
                 // DoctorSchedules::where('id', $schedule_id)->delete();
 
-                $schedule_list = DoctorSchedules::where('status', '<>', 2)->get();
+                $schedule_list = DoctorSchedules::where('doctor_id', $doctor_id)->where('status', '<>', 2)->get();
 
-                return response()->json(['response' => 'success','result' => $schedule_list]);
+                return response()->json(['response' => 'success','result'=>$schedule_list]);
             } else {
 
                 return response()->json(['response' => 'failed', 'message' => 'id does not exist']);

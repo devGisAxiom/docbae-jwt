@@ -10,6 +10,7 @@ use App\Models\HealthCardDetails;
 use Spatie\Browsershot\Browsershot;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\DB;
 
 class InstitutionController extends Controller
 {
@@ -24,7 +25,13 @@ class InstitutionController extends Controller
 
             if($institution_exists == 1){
 
-                $list_students = Member::with('blood_group','grade')->where('patient_id',$institute_id)->where('status', '<>', 2)->get();
+                // $list_students = Member::with('blood_group','grade')->where('patient_id',$institute_id)->where('status', '<>', 2)->get();
+
+                $list_students = Member::with('blood_group', 'grade')
+                ->where('patient_id', $institute_id)
+                ->where('status', '<>', 2)
+                ->select('*', DB::raw('TIMESTAMPDIFF(YEAR, dob, CURDATE()) AS age'))
+                ->get();
 
                     return response()->json(['response' => 'success', 'result' => $list_students]);
 

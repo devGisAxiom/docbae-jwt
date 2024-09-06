@@ -173,3 +173,7 @@ Route::get('/getStudentProfile', [InstitutionController::class,'GetStudentProfil
 Route::post('/getAvailableDoctors', [DoctorsController::class,'GetAvailableDoctors']);
 
 
+// GET DOCTOR TIME SLOTS
+Route::post('/getDoctorTimeslote', [DoctorsController::class,'GetDoctorTimeslote']);
+
+

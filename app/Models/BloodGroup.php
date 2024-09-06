@@ -12,7 +12,7 @@ class BloodGroup extends Model
     protected $table = 'blood_groups';
 
     protected $fillable = [
-
+        'id',
         'blood_types',
 
     ];

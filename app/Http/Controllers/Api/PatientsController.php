@@ -15,6 +15,7 @@ use App\Models\MembersMapping;
 use App\Models\RegistrationId;
 use Illuminate\Support\Carbon;
 use App\Models\PatientOtpHistory;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\FamilyMemberRelation;
 
@@ -29,9 +30,10 @@ class PatientsController extends Controller
 
     public function PatientRegister(Request $request)
     {
+
          $mobile       = Patient::where('mobile', $request->mobile)->where('status','<>', 2)->exists();
 
-            if($mobile){
+            if($mobile == 0){
 
                 if ($request->file('profile_pic') != null) {
                     $file       = $request->file('profile_pic');
@@ -40,6 +42,10 @@ class PatientsController extends Controller
                     $path1      = "public/Images/Patients/Profile_picture/$pic";
 
                 }
+                // passing blood type name
+                $blood_type = $request->blood_group_id;
+
+                $blood_type_id = BloodGroup::where('blood_types',$blood_type)->pluck('id')->first();
 
                 $dateOfBirth = Carbon::parse($request->dob);
                 $age = $dateOfBirth->age;
@@ -49,7 +55,7 @@ class PatientsController extends Controller
                 $patient->name           = $request->name;
                 $patient->dob            = $request->dob ?? "";
                 $patient->gender         = $request->gender ?? 0;
-                $patient->blood_group_id = $request->blood_group_id;
+                $patient->blood_group_id = $blood_type_id;
                 $patient->mobile         = $request->mobile;
                 $patient->address        = $request->address ?? "";
                 $patient->height         = $request->height;
@@ -79,7 +85,7 @@ class PatientsController extends Controller
                     'dob'             => $request->dob ?? "",
                     'gender'          => $request->gender ?? "",
                     'relationship_id' => 7,
-                    'blood_group_id'  => $request->blood_group_id,
+                    'blood_group_id'  => $blood_type_id,
                     'image'           => $pic ?? "",
                     'address'         => $request->address ?? "",
                     'height'          => $request->height,
@@ -164,6 +170,11 @@ class PatientsController extends Controller
                     $dateOfBirth = Carbon::parse($request->dob);
                     $age         = $dateOfBirth->age;
 
+                    if($request->blood_group_id != null){
+                        $blood_type = $request->blood_group_id;
+                        $blood_type_id = BloodGroup::where('blood_types',$blood_type)->pluck('id')->first();
+                    }
+
 
                     Patient::findOrFail($request->id)->update([
 
@@ -176,7 +187,7 @@ class PatientsController extends Controller
                         'weight'         => $request->weight ?? $user->weight,
                         'lmp'            => $request->lmp ?? $user->lmp,
                         'email'          => $request->email ?? $user->email,
-                        'blood_group_id' => $request->blood_group_id ?? $user->blood_group_id,
+                        'blood_group_id' => $blood_type_id ?? $user->blood_group_id,
                         'profile_pic'    => $pic ?? $user->profile_pic,
 
                     ]);
@@ -187,7 +198,7 @@ class PatientsController extends Controller
                         'dob'             => $request->dob ?? $user->dob,
                         'gender'          => $request->gender ?? $user->gender,
                         'relationship_id' => 7,
-                        'blood_group_id'  => $request->blood_group_id,
+                        'blood_group_id'  => $blood_type_id ?? $user->blood_group_id,
                         'image'           => $pic ?? $user->profile_pic,
                         'address'         => $request->address ?? $user->address,
                         'height'          => $request->height ?? $user->height,
@@ -224,6 +235,8 @@ class PatientsController extends Controller
 
             $user = Patient::where('id', $request->id)->where('status','<>',2)->exists();
             if($user == 1) {
+
+                // $user  =  Patient::findOrFail($request->id);
 
                 $userCollection =  Patient::where('id',$request->id)->get()
                             ->map(function ($user) {
@@ -294,10 +307,14 @@ class PatientsController extends Controller
         $name             = $request->name;
         $dob              = $request->dob;
         $gender           = $request->gender;
-        $relationship_id  = $request->relationship_id;
-        $blood_group_id   = $request->blood_group_id;
 
-        if($patient_id != null && $name != null && $dob != null && $gender != null && $relationship_id != null && $blood_group_id != null) {
+        $blood_type      = $request->blood_group_id;
+        $relationship    = $request->relationship_id;
+
+        $blood_type_id = BloodGroup::where('blood_types',$blood_type)->pluck('id')->first();
+        $relation_id   = FamilymemberRelation::where('relation',$relationship)->pluck('id')->first();
+
+        if($patient_id != null && $name != null && $dob != null && $gender != null && $relationship != null && $blood_type != null) {
 
             if ($request->file('image') != null) {
                 $file       = $request->file('image');
@@ -322,8 +339,8 @@ class PatientsController extends Controller
                 $family_member->height          = $request->height ?? 0;
                 $family_member->weight          = $request->weight ?? 0;
                 $family_member->lmp             = $request->lmp;
-                $family_member->relationship_id = $relationship_id;
-                $family_member->blood_group_id  = $blood_group_id;
+                $family_member->relationship_id = $relation_id;
+                $family_member->blood_group_id  = $blood_type_id;
                 $family_member->image           = $profile ?? "";
                 $family_member->status          = 1;
                 $family_member->unique_id       = $unique_id;
@@ -348,9 +365,7 @@ class PatientsController extends Controller
 
         } else {
             return response()->json(['response' => 'failed', 'message' => 'please enter the required fields']);
-
         }
-
     }
 
     public function ListFamilyMembers(Request $request)
@@ -418,14 +433,25 @@ class PatientsController extends Controller
                     }
                 }
 
+                $blood_type      = $request->blood_group_id;
+                $relationship    = $request->relationship_id;
+
+                if($blood_type != null){
+                    $blood_type_id = BloodGroup::where('blood_types',$blood_type)->pluck('id')->first();
+                }
+
+                if($relationship != null){
+                     $relation_id   = FamilymemberRelation::where('relation',$relationship)->pluck('id')->first();
+                }
+
                 Member::findOrFail($request->id)->update([
 
                     'patient_id'      => $user->patient_id,
                     'name'            => $request->name ?? $user->name,
                     'dob'             => $request->dob?? $user->dob,
                     'gender'          => $request->gender ?? $user->gender,
-                    'relationship_id' => $request->relationship_id ?? $user->relationship_id,
-                    'blood_group_id'  => $request->blood_group_id ?? $user->blood_group_id,
+                    'relationship_id' => $relation_id ?? $user->relationship_id,
+                    'blood_group_id'  => $blood_type_id ?? $user->blood_group_id,
                     'image'           => $profile ?? $user->image,
                     'address'         => $request->address ?? $user->address,
                     'height'          => $request->height ?? $user->height,
@@ -525,6 +551,8 @@ class PatientsController extends Controller
 
                 $total_appointment_count   = Invitation::where('patient_id', $patient_id)->where('meeting_date', '>=' ,$date)->where('status', 0)->count('id');
 
+                $followup_count = Invitation::where('patient_id',$patient_id)->where('follow_up',1)->where('follow_up_date','>=',$date)->count();
+
                 // if($user_type == 1){
 
                      $members_count = Member::where('patient_id',$patient_id)->where('status','<>',2)->count('id');
@@ -534,7 +562,7 @@ class PatientsController extends Controller
 
                 // }
 
-                return response()->json(['response' => 'success','todays_appointment_count'=>$todays_appointment_count, 'total_appointment_count' => $total_appointment_count,'members_count' => $members_count]);
+                return response()->json(['response' => 'success','todays_appointment_count'=>$todays_appointment_count, 'total_appointment_count' => $total_appointment_count,'members_count' => $members_count,'followup_count'=>$followup_count]);
 
             } else {
 
@@ -582,9 +610,10 @@ class PatientsController extends Controller
 
     public function PendingFollowup(Request $request)
     {
-        $dateTime    = Carbon::now('Asia/Kolkata');
-        $date        = $dateTime->toDateString();
+        $date        = now()->toDateString();
         $patient_id  = $request->patient_id;
+
+
         if ($patient_id != null) {
 
             $check_invitation = Invitation::where('patient_id',$patient_id)->where('status',2)->exists();
