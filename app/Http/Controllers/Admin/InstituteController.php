@@ -42,10 +42,15 @@ class InstituteController extends Controller
     public function SaveInstitute(Request $request)
     {
 
-        $validatedData = $request->validate([
+        $check_number_exists = Patient::where('mobile',$request->mobile)->where('user_type',2)->exists();
 
-            'mobile' => 'required|min:10|digits:10|unique:patients,mobile',
-        ]);
+        if($check_number_exists == 0){
+
+            $validatedData = $request->validate([
+
+                'mobile' => 'required|min:10|digits:10|unique:patients,mobile',
+            ]);
+        }
 
         if ($request->file('profile_pic') != null) {
             $file       = $request->file('profile_pic');
@@ -57,7 +62,7 @@ class InstituteController extends Controller
 
         if ($request->authorization_letter!= null) {
 
-            $file  = $request->authorization_letter;
+            $file  = $request->authorization_letter;    
             $letter   = $file->getClientOriginalName();
             $request->authorization_letter->move(public_path('Images/Institution/Authorization_letter'), $letter);
             $path       = "public/Images/Institution/Authorization_letter/$letter";

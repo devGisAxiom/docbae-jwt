@@ -9,51 +9,66 @@ use App\Http\Controllers\Controller;
 
 class StatusController extends Controller
 {
-    public function GetAllStatus()
+    public function GetAllStatus(Request $request)
     {
-        $status = Status::where('is_deleted', '<>', 1)->get();
+        $users  = $request->user();
 
-        if ($status!=null) {
+        if($users != null){
 
-           return response()->json(['response' => 'success', 'status' => $status]);
+            $status = Status::where('is_deleted', '<>', 1)->get();
 
-       } else{
+            if ($status!=null) {
 
-        return response()->json(['response' => 'failed', 'status' => []]);
-    }
+            return response()->json(['response' => 'success', 'status' => $status]);
+
+        } else{
+
+            return response()->json(['response' => 'failed', 'status' => []]);
+            }
+        } else {
+
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
     }
 
     public function UpdateDoctorStatus(Request $request)
     {
-        $doctor_id = $request->input("doctor_id");
-        $status    = $request->input("status");
+        $users  = $request->user();
 
-        $doctor     = Doctor::where('id', $doctor_id)->where('status',  1)->exists();
-        $status_id  = Status::where('id', $status)->where('status', 1)->exists();
+        if($users != null){
 
-        if ($doctor_id != null && $status != null) {
+            $doctor_id = $users['id'];
+            $status    = $request->status;
 
-            if ($doctor == 1 && $status_id == 1) {
+            $doctor     = Doctor::where('id', $doctor_id)->where('status',  1)->exists();
+            $status_id  = Status::where('id', $status)->where('status', 1)->exists();
 
-               Doctor::findOrFail($request->doctor_id)->update([
+            if ($doctor_id != null && $status != null) {
 
-                    'status'  => $status,
+                if ($doctor == 1 && $status_id == 1) {
 
-                ]);
+                Doctor::findOrFail($request->doctor_id)->update([
 
-                return response()->json(['response' => 'success']);
+                        'status'  => $status,
 
+                    ]);
+
+                    return response()->json(['response' => 'success']);
+
+
+                } else {
+
+                    return response()->json(['response' => 'false']);
+                }
 
             } else {
 
-                return response()->json(['response' => 'false']);
+                return response()->json(['response' => 'failed', 'message' => "please enter the details"]);
             }
-
         } else {
 
-            return response()->json(['response' => 'failed', 'message' => "please enter the details"]);
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
-
 
     }
 }
