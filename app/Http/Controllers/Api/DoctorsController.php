@@ -65,22 +65,27 @@ class DoctorsController extends Controller
 
     public function refresh()
     {
-        return $this->respondWithToken(Auth::refresh());
+        $guard = Auth::getDefaultDriver();
+
+        return $this->respondWithToken(Auth::guard($guard)->refresh(), $guard);
     }
 
-    protected function respondWithToken($token)
+
+    protected function respondWithToken($token, $guard)
     {
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => Auth::factory()->getTTL() * 60
+            'expires_in' => Auth::guard($guard)->factory()->getTTL() * 60
         ]);
     }
 
-    public function guard()
+
+    public function guard($guard = null)
     {
-        return Auth::guard();
+        return Auth::guard($guard);
     }
+
 
     // patient
     public function GetAvailableSchedule(Request $request)
@@ -244,7 +249,7 @@ class DoctorsController extends Controller
 
         if ($otp != null && $mobile != null && $user_type != null) {
 
-            if ($user_type == 0) {
+            if ($user_type == 0) {  // Doctor authentication
 
                 $user_otp = OtpHistory::where('otp', $otp)->where('is_used', '<>', 1)->exists();
 
@@ -256,37 +261,32 @@ class DoctorsController extends Controller
 
                     if ($doctor_id == 1) {
 
-                        $user   = Doctor::where('id', $user_id)->where('status', 1)->get();
-
                         OtpHistory::findOrFail($id)->update([
-
-                            'is_used'  => 1,
-
+                            'is_used' => 1,
                         ]);
 
                         $data = [
-                            'mobile'    => $request->mobile,
-                            'password'  => $request->mobile,
+                            'mobile'   => $request->mobile,
+                            'password' => $request->mobile,
                         ];
 
+                        // Use the 'doctor' guard
+                        // if ($token = Auth::guard('doctor')->attempt($data)) {
+                        //     $tokenResponse = $this->respondWithToken($token, 'doctor');  // Pass guard to the function
+                        // }
 
-                        if ($token = Auth::guard()->attempt($data)) {
+                        $token = auth('doctor')->attempt($data);
 
-                            $tokenResponse = $this->respondWithToken($token);
+                        return response()->json(['otp_status' => 'true', 'user_exist' => 'true', 'user_id' => $user_id, 'token' => $token]);
 
-                        }
-
-                        return response()->json(['otp_status' => 'true', 'user_exist' => 'true',  'user_id' => $user_id, 'token' => $tokenResponse]);
                     } else {
-
-                        return response()->json(['otp_status' => 'true','user_exist' => 'false']);
+                        return response()->json(['otp_status' => 'true', 'user_exist' => 'false']);
                     }
                 } else {
-
-                    return response()->json(['opt_status' => 'false']);
+                    return response()->json(['otp_status' => 'false']);
                 }
 
-            } else if($user_type == 1){
+            } else if($user_type == 1) {  // Patient authentication
 
                 $user_otp = OtpHistory::where('otp', $otp)->where('is_used', '<>', 1)->exists();
 
@@ -298,44 +298,39 @@ class DoctorsController extends Controller
 
                     if ($patient_id == 1) {
 
-                        $user   = Patient::where('id', $user_id)->where('status', '<>', 2)->get();
-
                         OtpHistory::findOrFail($id)->update([
-
-                            'is_used'  => 1,
-
+                            'is_used' => 1,
                         ]);
 
                         $data = [
-                            'mobile'    => $request->mobile,
-                            'password'  => $request->mobile,
+                            'mobile'   => $request->mobile,
+                            'password' => $request->mobile,
                         ];
 
+                        // Use the 'patient' guard
+                        // if ($token = Auth::guard('patient')->attempt($data)) {
+                        //     $tokenResponse = $this->respondWithToken($token, 'patient');  // Pass guard to the function
+                        // }
 
-                        if ($token = Auth::guard()->attempt($data)) {
+                        $token = auth('api')->attempt($data);
 
-                            $tokenResponse = $this->respondWithToken($token);
 
-                        }
-
-                        return response()->json(['otp_status' => 'true', 'user_exist' => 'true',  'user_id' => $user_id, 'token' => $tokenResponse]);
+                        return response()->json(['otp_status' => 'true', 'user_exist' => 'true', 'user_id' => $user_id, 'token' => $token]);
 
                     } else {
-
-                        return response()->json(['otp_status' => 'true','user_exist' => 'false']);
+                        return response()->json(['otp_status' => 'true', 'user_exist' => 'false']);
                     }
                 } else {
-
-                    return response()->json(['opt_status' => 'false']);
+                    return response()->json(['otp_status' => 'false']);
                 }
             }
 
-
         } else {
-
             return response()->json(['response' => 'failed']);
         }
     }
+
+
 
     public function DoctorRegister(Request $request)
     {

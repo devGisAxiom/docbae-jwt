@@ -14,6 +14,8 @@ class Patient extends Authenticatable implements JWTSubject
 
     protected $table = 'patients';
 
+    protected $guard = ["api"];
+
     protected $fillable  = ['user_type', 'name', 'mobile','dob', 'gender', 'blood_group_id', 'address', 'email','profile_pic', 'no_of_participants', 'authorization_letter','institution_type','institution_sub_type','created_at','status','height','weight','lmp' ];
 
     public $timestamps = false;

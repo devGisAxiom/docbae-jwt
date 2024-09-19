@@ -41,7 +41,7 @@ return [
             'provider' => 'users',
         ],
 
-        'api' => [
+        'doctor' => [
             'driver' => 'jwt',
             'provider' => 'doctors',
             // 'hash' => false,

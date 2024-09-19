@@ -24,6 +24,20 @@ use App\Http\Controllers\Api\InstitutionController;
 
 // doctor - auth
 
+
+  // DOCTOR LOGIN
+
+  Route::get('/checkPhone', [DoctorsController::class,'checkPhoneNumber']);
+  Route::post('/userExist', [DoctorsController::class,'UserExist']);
+
+  // DOCTOR REGISTER
+  Route::post('/doctorRegister', [DoctorsController::class,'DoctorRegister']);
+
+  // PATIENT REGISTER
+  Route::post('/patientRegister', [PatientsController::class,'PatientRegister']);
+
+
+
 Route::group([
 
     'middleware' => 'api',
@@ -32,7 +46,7 @@ Route::group([
 
 ], function ($router) {
 
-    // Route::post('/login', [DoctorsController::class,'Login']);
+    Route::post('/login', [DoctorsController::class,'Login']);
     // Route::post('/refresh', [DoctorsController::class,'refresh']);
     // Route::post('/me', [DoctorsController::class,'me']);
 
@@ -184,18 +198,6 @@ Route::group([
 
 
 });
-
-
-    // DOCTOR LOGIN
-
-    Route::get('/checkPhone', [DoctorsController::class,'checkPhoneNumber']);
-    Route::post('/userExist', [DoctorsController::class,'UserExist']);
-
-    // DOCTOR REGISTER
-    Route::post('/doctorRegister', [DoctorsController::class,'DoctorRegister']);
-
-    // PATIENT REGISTER
-    Route::post('/patientRegister', [PatientsController::class,'PatientRegister']);
 
 
 

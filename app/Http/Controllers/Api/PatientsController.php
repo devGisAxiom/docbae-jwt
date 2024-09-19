@@ -28,7 +28,7 @@ class PatientsController extends Controller
     {
         Helper::GenerateUniqueId();
 
-        $this->middleware('auth:api', ['except' => ['PatientRegister','checkPhoneNumber','UserExist']]);
+        // $this->middleware('auth:api', ['except' => ['PatientRegister','checkPhoneNumber','UserExist']]);
     }
 
     public function me()
